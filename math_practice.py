@@ -203,6 +203,160 @@ def gen_distribute_negative():
     
     return expr, answer.replace(" ", ""), steps, hints
 
+def gen_multi_distribute():
+    """Generate: a(bx + c) - d(ex + f)"""
+    a = random.randint(2, 5)
+    b = random.randint(2, 6)
+    c = random.randint(1, 8)
+    d = random.randint(2, 5)
+    e = random.randint(2, 6)
+    f = random.randint(1, 8)
+    
+    x_coef = a * b - d * e
+    constant = a * c - d * f
+    
+    expr = f"{a}({b}x + {c}) - {d}({e}x + {f})"
+    
+    if x_coef == 0:
+        answer = str(constant)
+    else:
+        if x_coef == 1:
+            answer = "x"
+        elif x_coef == -1:
+            answer = "-x"
+        else:
+            answer = f"{x_coef}x"
+        
+        if constant > 0:
+            answer += f" + {constant}"
+        elif constant < 0:
+            answer += f" - {abs(constant)}"
+    
+    steps = [
+        f"🎯 **Two sets of parentheses - double the fun!**",
+        f"**Step 1:** Distribute {a} in first parentheses",
+        f"   • {a} × {b}x = {a*b}x",
+        f"   • {a} × {c} = {a*c}",
+        f"**Step 2:** Distribute -{d} in second parentheses (watch those signs!)",
+        f"   • -{d} × {e}x = {-d*e}x",
+        f"   • -{d} × {f} = {-d*f}",
+        f"**Step 3:** Combine x terms: {a*b}x + ({-d*e}x) = **{x_coef}x**",
+        f"**Step 4:** Combine constants: {a*c} + ({-d*f}) = **{constant}**",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **It's like a combo attack! ⚔️** First handle {a}( ) by distributing, then handle -{d}( ) by distributing. Remember: that negative sign in front of {d} will flip the signs of everything inside!",
+        f"💡 **Now gather your troops! 🛡️** After both distributions, you'll have x terms and number terms scattered everywhere. Round up all the x's together, then round up all the numbers together.",
+        f"💡 **Almost done!** 🎯 You should have something like __x + __ or __x - __. Just do the final math to combine those x terms and those number terms!"
+    ]
+    
+    return expr, answer.replace(" ", ""), steps, hints
+
+def gen_fraction_simplify():
+    """Generate fraction simplification: (a/b)x + (c/d)x"""
+    # Use common denominators for easier problems
+    denominators = [2, 3, 4, 5, 6]
+    b = random.choice(denominators)
+    d = random.choice(denominators)
+    
+    a = random.randint(1, 5)
+    c = random.randint(1, 5)
+    
+    # Calculate answer
+    # (a/b)x + (c/d)x = ((ad + bc)/bd)x
+    numerator = a * d + c * b
+    denominator = b * d
+    
+    # Simplify the fraction
+    result = Fraction(numerator, denominator)
+    
+    expr = f"{a}/{b}x + {c}/{d}x"
+    
+    if result == 1:
+        answer = "x"
+    elif result == -1:
+        answer = "-x"
+    else:
+        answer = f"{result}x"
+    
+    steps = [
+        f"🎯 **Combining fractions with x - let's do this!**",
+        f"**Step 1:** Find common denominator for {b} and {d}",
+        f"   • Common denominator = {b * d}",
+        f"**Step 2:** Convert each fraction:",
+        f"   • {a}/{b}x = {a * d}/{b * d}x",
+        f"   • {c}/{d}x = {c * b}/{b * d}x",
+        f"**Step 3:** Add the numerators (same x, same denominator):",
+        f"   • {a * d}/{b * d}x + {c * b}/{b * d}x = {numerator}/{denominator}x",
+        f"**Step 4:** Simplify: {numerator}/{denominator} = {result}",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **Think of it like sharing different sized pizzas! 🍕** You've got {a}/{b} of a pizza with x slices and {c}/{d} of another pizza with x slices. To add them, they need to be cut the same way - find a common denominator!",
+        f"💡 **Get them speaking the same language! 🗣️** Convert both fractions to have the same bottom number (denominator). Multiply {a}/{b} by {d}/{d} and {c}/{d} by {b}/{b}. This doesn't change their value, just how they look!",
+        f"💡 **Now add 'em up! ➕** Once they have the same denominator ({b*d}), just add the top numbers: {a*d} + {c*b} = {numerator}. Don't forget the x! Then simplify if you can."
+    ]
+    
+    return expr, answer.replace(" ", ""), steps, hints
+
+def gen_fraction_simplify_mixed():
+    """Generate: (a/b)(cx + d) + ex"""
+    b = random.choice([2, 3, 4, 5])
+    a = random.randint(1, 4)
+    c = random.randint(2, 6)
+    d = random.randint(-8, 8)
+    e = random.randint(-6, 6)
+    
+    # After distribution: (ac/b)x + (ad/b) + ex
+    # = ((ac + eb)/b)x + (ad/b)
+    
+    x_coef = Fraction(a * c + e * b, b)
+    constant = Fraction(a * d, b)
+    
+    expr = f"{a}/{b}({c}x + {d}) + {e}x"
+    expr = expr.replace("+ -", "- ")
+    
+    # Format answer
+    if x_coef == 1:
+        answer = "x"
+    elif x_coef == -1:
+        answer = "-x"
+    elif x_coef == 0:
+        answer = ""
+    else:
+        answer = f"{x_coef}x"
+    
+    if constant > 0 and answer:
+        answer += f" + {constant}"
+    elif constant < 0 and answer:
+        answer += f" - {abs(constant)}"
+    elif constant != 0 and not answer:
+        answer = str(constant)
+    elif not answer and constant == 0:
+        answer = "0"
+    
+    steps = [
+        f"🎯 **Fraction distribution incoming!**",
+        f"**Step 1:** Distribute {a}/{b} to everything inside",
+        f"   • {a}/{b} × {c}x = {Fraction(a*c, b)}x",
+        f"   • {a}/{b} × {d} = {Fraction(a*d, b)}",
+        f"**Step 2:** Now we have: {Fraction(a*c, b)}x + {Fraction(a*d, b)} + {e}x",
+        f"**Step 3:** Combine x terms (get common denominator if needed):",
+        f"   • {Fraction(a*c, b)}x + {e}x = {x_coef}x",
+        f"**Step 4:** Combine constants: {Fraction(a*d, b)} (If this is 0, it disappears)",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **Fractions can distribute too! 🎁** When {a}/{b} multiplies into the parentheses, it multiplies with BOTH {c}x and {d}. Just multiply the tops and keep the bottom!",
+        f"💡 **Mix and match! 🎨** After distributing, you'll have a fraction with x ({Fraction(a*c,b)}x) and a regular x term ({e}x). To add them, turn {e}x into {Fraction(e*b,b)}x - same denominator!",
+        f"💡 **Final lap! 🏁** Add those x terms together (add the numerators, keep denominator {b}). Don't forget about the constant {Fraction(a*d,b)} hanging out by itself!"
+    ]
+    
+    return expr, answer.replace(" ", ""), steps, hints
+
 def gen_linear_eq():
     """Generate: ax + b = c"""
     a = random.randint(-10, 10)
@@ -279,14 +433,57 @@ def gen_distribute_eq():
     
     return equation, answer, steps, hints
 
+def gen_fraction_eq():
+    """Generate: x/a + b = c (Equation with a fractional term)"""
+    a = random.choice([2, 3, 4, 5]) # Denominator (a)
+    b = random.randint(-8, 8)       # Constant (b)
+    
+    # Ensure the final answer is a clean integer for simplicity
+    k = random.randint(-5, 5)
+    if k == 0: k = 2
+    
+    # Recalculate c so that x = k * a is the solution
+    # x/a = k -> x/a + b = k + b
+    c = b + k
+    x_val = k * a
+    
+    equation = f"x/{a} + {b} = {c}".replace("+ -", "- ")
+    answer = str(x_val)
+    
+    steps = [
+        f"🎯 **Goal:** Get x all by itself!",
+        f"**Step 1:** Get rid of the constant {b} by subtracting it from both sides",
+        f"   • x/{a} + {b} - {b} = {c} - {b}",
+        f"   • **x/{a} = {c - b}** (The difference is {c - b})",
+        f"**Step 2:** Multiply both sides by {a} to isolate x",
+        f"   • x/{a} * {a} = {c - b} * {a}",
+        f"   • **x = {x_val}**",
+        f"✨ **Final Answer: x = {x_val}**"
+    ]
+    
+    hints = [
+        f"💡 **First, deal with the lonely number!** The {b} on the left side is all by itself. To move it to the other side, do the opposite of what you see. Subtract {b} from BOTH sides (gotta keep the equation balanced!).",
+        f"💡 **Now, get rid of that division!** You have x divided by {a} ($x/{a}$). The opposite of division is multiplication. Multiply BOTH sides by {a} to free the x!",
+        f"💡 **You're so close!** The equation should be simplified to $x/{a} = {c-b}$. Just multiply both sides by {a} to find x!"
+    ]
+    
+    return equation, answer, steps, hints
+
 def generate_new_problem(problem_type):
     """Generate a new problem based on type"""
     if problem_type == 'simplify':
-        generators = [gen_distribute_combine, gen_distribute_negative]
+        generators = [
+            gen_distribute_combine, 
+            gen_distribute_negative,
+            gen_multi_distribute,
+            gen_fraction_simplify,
+            gen_fraction_simplify_mixed
+        ]
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Simplify:"
     else:  # equations
-        generators = [gen_linear_eq, gen_distribute_eq]
+        # gen_fraction_eq is now defined!
+        generators = [gen_linear_eq, gen_distribute_eq, gen_fraction_eq]
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Solve for x:"
 
