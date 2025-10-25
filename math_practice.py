@@ -196,9 +196,9 @@ def gen_distribute_negative():
     ]
     
     hints = [
-        f"💡 **The negative is like a mood! 😤** When -{a} multiplies with everything inside, it changes the sign of each thing. So {b}x becomes negative, but -{c} (which is already negative) becomes POSITIVE! It's like a double negative in English - 'I don't have no money' means you DO have money!",
-        f"💡 **Here's the magic trick:** 🎩✨ When you multiply two negatives together, they become besties and turn positive! Think: (negative) × (negative) = POSITIVE. So -{a} times -{c} = +{constant}!",
-        f"💡 **You're so close!** 🎯 Just remember: -{a} × {b}x = {x_coef}x (stays negative), but -{a} × (-{c}) = +{constant} (becomes positive because negative × negative = positive!)"
+        f"💡 **Think of it like taking damage in Fortnite! 🎮** When -{a} multiplies with everything inside, it deals damage (makes things negative). So {b}x takes damage and becomes negative. BUT when it hits -{c} (which is already damaged/negative), it's like using a shield potion - the negative damage actually HEALS it back to positive +{constant}!",
+        f"💡 **Here's the magic trick:** 🎩✨ When you multiply two negatives together, they become besties and turn positive! Think: (negative) × (negative) = POSITIVE. So -{a} times -{c} = +{constant}! It's like when two enemies in a game fight each other - they cancel out!",
+        f"💡 **You're so close!** 🎯 Just remember: -{a} × {b}x = {x_coef}x (takes damage, stays negative), but -{a} × (-{c}) = +{constant} (negative damage on something already negative = heals it to positive!)"
     ]
     
     return expr, answer.replace(" ", ""), steps, hints
