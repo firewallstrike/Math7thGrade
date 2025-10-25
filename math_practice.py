@@ -164,9 +164,9 @@ def gen_distribute_combine():
     ]
     
     hints = [
-        "💡 **Start by distributing!** Multiply the number outside the parentheses by everything inside.",
-        f"💡 **Next hint:** After distributing, look for terms with 'x' - you can combine those!",
-        f"💡 **Almost there!** Don't forget to combine the plain numbers too!"
+        f"💡 **Think of it like sharing pizza!** 🍕 The {a} outside needs to multiply with EVERYTHING inside the ( ). It's like if you have {a} groups, and each group gets {b}x and {c}. How much total do you have?",
+        f"💡 **Now play matchmaker!** 💑 After distributing, find all your 'x' terms (they're like teammates) and add them up. Then find all your plain numbers and add those up separately. X's hang with X's, numbers hang with numbers!",
+        f"💡 **Almost there, superstar!** ⭐ You should have something like __x + __ or __x - __. Just combine those x teammates ({a*b}x and {d}x) and those number buddies ({a*c} and {e})!"
     ]
     
     return expr, answer.replace(" ", ""), steps, hints
@@ -196,9 +196,9 @@ def gen_distribute_negative():
     ]
     
     hints = [
-        "💡 **Tricky part!** Remember that the negative sign distributes too!",
-        "💡 **Key concept:** When you multiply two negatives, you get a POSITIVE! (-) × (-) = (+)",
-        "💡 **Almost there!** Distribute the negative to BOTH terms inside the parentheses."
+        f"💡 **The negative is like a mood! 😤** When -{a} multiplies with everything inside, it changes the sign of each thing. So {b}x becomes negative, but -{c} (which is already negative) becomes POSITIVE! It's like a double negative in English - 'I don't have no money' means you DO have money!",
+        f"💡 **Here's the magic trick:** 🎩✨ When you multiply two negatives together, they become besties and turn positive! Think: (negative) × (negative) = POSITIVE. So -{a} times -{c} = +{constant}!",
+        f"💡 **You're so close!** 🎯 Just remember: -{a} × {b}x = {x_coef}x (stays negative), but -{a} × (-{c}) = +{constant} (becomes positive because negative × negative = positive!)"
     ]
     
     return expr, answer.replace(" ", ""), steps, hints
@@ -227,9 +227,9 @@ def gen_linear_eq():
     ]
     
     hints = [
-        f"💡 **First step:** To get x by itself, you need to move {b} to the other side. What's the opposite of adding?",
-        f"💡 **Next:** Once you have {a}x = something, divide both sides by {a}!",
-        f"💡 **Remember:** Whatever you do to one side, do to the other side too!"
+        f"💡 **Think of it like x is trapped!** 🚪 Right now x is stuck with {b} bothering it. To free x, we need to get rid of {b}. What's the opposite of +{b}? Subtract {b} from BOTH sides (gotta keep it fair!).",
+        f"💡 **Now x has a buddy that won't leave!** 👥 You've got {a}x, but we want just plain x. It's like having {a} friends sharing something - divide by {a} to find out what ONE person gets. Do this to BOTH sides!",
+        f"💡 **Here's the secret formula:** 🔐 Whatever's NEXT to x, do the opposite! If it's +{b}, subtract {b}. If it's ×{a}, divide by {a}. Just remember: what you do to one side, you MUST do to the other - it's the golden rule of equations!"
     ]
     
     return equation, answer, steps, hints
@@ -272,9 +272,9 @@ def gen_distribute_eq():
     ]
     
     hints = [
-        "💡 **Start here:** Distribute first! Get rid of those parentheses.",
-        "💡 **Next:** After distributing, combine all the x terms together.",
-        "💡 **Then:** Move all the numbers to the other side, and solve like a regular equation!"
+        f"💡 **BOSS LEVEL! 🎮** This is like a combo move! First, handle those parentheses - distribute {a} to everything inside (it's like {a} is giving high-fives to {b}x and {c}). Once you break open those parentheses, you can see what you're really working with!",
+        f"💡 **Time to tidy up! 🧹** After distributing, you've got x terms scattered around like toys on the floor. Gather all the x's together (add {a*b}x and {d}x). Then gather all the regular numbers ({a*c} and {e}). Now it looks way simpler, right?",
+        f"💡 **Final boss moves! ⚔️** You should have something like {x_coef}x + {const} = {f}. Now it's just a regular equation! Move {const} to the other side, then divide by {x_coef}. You got this!"
     ]
     
     return equation, answer, steps, hints
