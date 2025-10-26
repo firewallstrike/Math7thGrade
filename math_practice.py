@@ -113,12 +113,36 @@ def init_session_state():
         st.session_state.answered = False
     if 'problem_type' not in st.session_state:
         st.session_state.problem_type = 'simplify'
+    if 'hint_level' not in st.session_state:
+        st.session_state.hint_level = 0
 
 init_session_state()
 
 # ============================================================================
 # PROBLEM GENERATION FUNCTIONS
 # ============================================================================
+
+# Helper function to generate an algebraic expression answer string
+def format_answer_string(x_coef, constant):
+    answer = ""
+    
+    if x_coef == 1:
+        answer = "x"
+    elif x_coef == -1:
+        answer = "-x"
+    elif x_coef != 0:
+        answer = f"{x_coef}x"
+    
+    if constant > 0 and answer:
+        answer += f" + {constant}"
+    elif constant < 0 and answer:
+        answer += f" - {abs(constant)}"
+    elif constant != 0 and not answer:
+        answer = str(constant)
+    elif not answer and constant == 0:
+        answer = "0"
+        
+    return answer.replace(" ", "")
 
 def gen_distribute_combine():
     """Generate: a(bx + c) + dx + e"""
@@ -135,41 +159,25 @@ def gen_distribute_combine():
     expr = f"{a}({b}x + {c}) + {d}x + {e}"
     expr = expr.replace("+ -", "- ").replace("- -", "+ ")
     
-    if x_coef == 1:
-        answer = f"x"
-    elif x_coef == -1:
-        answer = f"-x"
-    else:
-        answer = f"{x_coef}x"
-    
-    if constant > 0:
-        answer += f" + {constant}"
-    elif constant < 0:
-        answer += f" - {abs(constant)}"
-    elif constant == 0 and x_coef != 0:
-        pass
-    else:
-        answer = str(constant)
+    answer = format_answer_string(x_coef, constant)
     
     steps = [
         f"🎯 **First, let's distribute!** Think of {a} as giving something to everyone inside the parentheses.",
-        f"   • {a} × {b}x = {a*b}x (multiply {a} times {b}x)",
-        f"   • {a} × {c} = {a*c} (multiply {a} times {c})",
-        f"📝 Now we have: **{a*b}x + {a*c} + {d}x + {e}**",
-        f"🔍 **Combine the x terms** (terms with x stick together!):",
-        f"   • {a*b}x + {d}x = **{x_coef}x**",
-        f"🔍 **Combine the numbers** (constants stick together!):",
-        f"   • {a*c} + {e} = **{constant}**",
+        f"   • {a} × {b}x = {a*b}x",
+        f"   • {a} × {c} = {a*c}",
+        f"📝 Now we have: **{a*b}x {('+' if a*c >= 0 else '-')} {abs(a*c)} {('+' if d >= 0 else '-')} {abs(d)}x {('+' if e >= 0 else '-')} {abs(e)}**",
+        f"🔍 **Combine the x terms**: {a*b}x + {d}x = **{x_coef}x**",
+        f"🔍 **Combine the numbers**: {a*c} + {e} = **{constant}**",
         f"✨ **Final Answer: {answer}**"
     ]
     
     hints = [
-        f"💡 **Think of it like sharing pizza!** 🍕 The {a} outside needs to multiply with EVERYTHING inside the ( ). It's like if you have {a} groups, and each group gets {b}x and {c}. How much total do you have?",
-        f"💡 **Now play matchmaker!** 💑 After distributing, find all your 'x' terms (they're like teammates) and add them up. Then find all your plain numbers and add those up separately. X's hang with X's, numbers hang with numbers!",
-        f"💡 **Almost there, superstar!** ⭐ You should have something like __x + __ or __x - __. Just combine those x teammates ({a*b}x and {d}x) and those number buddies ({a*c} and {e})!"
+        f"💡 **Think of it like sharing pizza!** 🍕 The {a} outside needs to multiply with EVERYTHING inside the ( ).",
+        f"💡 **Now play matchmaker!** 💑 Find all your 'x' terms and add them up. Then find all your plain numbers and add those up separately.",
+        f"💡 **Almost there, superstar!** ⭐ Combine your x terms ({a*b}x and {d}x) and your number buddies ({a*c} and {e})!"
     ]
     
-    return expr, answer.replace(" ", ""), steps, hints
+    return expr, answer, steps, hints
 
 def gen_distribute_negative():
     """Generate: -a(bx - c)"""
@@ -182,10 +190,7 @@ def gen_distribute_negative():
     
     expr = f"-{a}({b}x - {c})"
     
-    if x_coef == -1:
-        answer = f"-x + {constant}"
-    else:
-        answer = f"{x_coef}x + {constant}"
+    answer = format_answer_string(x_coef, constant)
     
     steps = [
         f"⚠️ **Watch out for the negative sign!** When -{a} goes inside:",
@@ -196,12 +201,12 @@ def gen_distribute_negative():
     ]
     
     hints = [
-        f"💡 **Think of it like taking damage in Fortnite! 🎮** When -{a} multiplies with everything inside, it deals damage (makes things negative). So {b}x takes damage and becomes negative. BUT when it hits -{c} (which is already damaged/negative), it's like using a shield potion - the negative damage actually HEALS it back to positive +{constant}!",
-        f"💡 **Here's the magic trick:** 🎩✨ When you multiply two negatives together, they become besties and turn positive! Think: (negative) × (negative) = POSITIVE. So -{a} times -{c} = +{constant}! It's like when two enemies in a game fight each other - they cancel out!",
-        f"💡 **You're so close!** 🎯 Just remember: -{a} × {b}x = {x_coef}x (takes damage, stays negative), but -{a} × (-{c}) = +{constant} (negative damage on something already negative = heals it to positive!)"
+        f"💡 **Think of it like taking damage! 🎮** The -{a} makes {b}x negative. BUT when it hits -{c}, it's like a shield potion—negative times negative is positive!",
+        f"💡 **Here's the magic trick:** 🎩✨ Negative times negative equals POSITIVE. So -{a} times -{c} = +{constant}!",
+        f"💡 **You're so close!** 🎯 Just remember: -{a} times a positive is negative, and -{a} times a negative is positive!"
     ]
     
-    return expr, answer.replace(" ", ""), steps, hints
+    return expr, answer, steps, hints
 
 def gen_multi_distribute():
     """Generate: a(bx + c) - d(ex + f)"""
@@ -217,58 +222,35 @@ def gen_multi_distribute():
     
     expr = f"{a}({b}x + {c}) - {d}({e}x + {f})"
     
-    if x_coef == 0:
-        answer = str(constant)
-    else:
-        if x_coef == 1:
-            answer = "x"
-        elif x_coef == -1:
-            answer = "-x"
-        else:
-            answer = f"{x_coef}x"
-        
-        if constant > 0:
-            answer += f" + {constant}"
-        elif constant < 0:
-            answer += f" - {abs(constant)}"
+    answer = format_answer_string(x_coef, constant)
     
     steps = [
         f"🎯 **Two sets of parentheses - double the fun!**",
-        f"**Step 1:** Distribute {a} in first parentheses",
-        f"   • {a} × {b}x = {a*b}x",
-        f"   • {a} × {c} = {a*c}",
-        f"**Step 2:** Distribute -{d} in second parentheses (watch those signs!)",
-        f"   • -{d} × {e}x = {-d*e}x",
-        f"   • -{d} × {f} = {-d*f}",
+        f"**Step 1:** Distribute {a}: {a*b}x + {a*c}",
+        f"**Step 2:** Distribute -{d} (watch signs!): {-d*e}x - {d*f}",
         f"**Step 3:** Combine x terms: {a*b}x + ({-d*e}x) = **{x_coef}x**",
         f"**Step 4:** Combine constants: {a*c} + ({-d*f}) = **{constant}**",
         f"✨ **Final Answer: {answer}**"
     ]
     
     hints = [
-        f"💡 **It's like a combo attack! ⚔️** First handle {a}( ) by distributing, then handle -{d}( ) by distributing. Remember: that negative sign in front of {d} will flip the signs of everything inside!",
-        f"💡 **Now gather your troops! 🛡️** After both distributions, you'll have x terms and number terms scattered everywhere. Round up all the x's together, then round up all the numbers together.",
-        f"💡 **Almost done!** 🎯 You should have something like __x + __ or __x - __. Just do the final math to combine those x terms and those number terms!"
+        f"💡 **It's like a combo attack! ⚔️** First handle {a}( ), then handle -{d}( ). The negative sign flips signs!",
+        f"💡 **Now gather your troops! 🛡️** Round up all the x's together, then round up all the numbers together.",
+        f"💡 **Almost done!** 🎯 Just combine those x terms and those number terms!"
     ]
     
-    return expr, answer.replace(" ", ""), steps, hints
+    return expr, answer, steps, hints
 
 def gen_fraction_simplify():
     """Generate fraction simplification: (a/b)x + (c/d)x"""
-    # Use common denominators for easier problems
     denominators = [2, 3, 4, 5, 6]
     b = random.choice(denominators)
     d = random.choice(denominators)
-    
     a = random.randint(1, 5)
     c = random.randint(1, 5)
     
-    # Calculate answer
-    # (a/b)x + (c/d)x = ((ad + bc)/bd)x
     numerator = a * d + c * b
     denominator = b * d
-    
-    # Simplify the fraction
     result = Fraction(numerator, denominator)
     
     expr = f"{a}/{b}x + {c}/{d}x"
@@ -282,21 +264,17 @@ def gen_fraction_simplify():
     
     steps = [
         f"🎯 **Combining fractions with x - let's do this!**",
-        f"**Step 1:** Find common denominator for {b} and {d}",
-        f"   • Common denominator = {b * d}",
-        f"**Step 2:** Convert each fraction:",
-        f"   • {a}/{b}x = {a * d}/{b * d}x",
-        f"   • {c}/{d}x = {c * b}/{b * d}x",
-        f"**Step 3:** Add the numerators (same x, same denominator):",
-        f"   • {a * d}/{b * d}x + {c * b}/{b * d}x = {numerator}/{denominator}x",
-        f"**Step 4:** Simplify: {numerator}/{denominator} = {result}",
+        f"**Step 1:** Find common denominator for {b} and {d}: {b * d}",
+        f"**Step 2:** Convert to common denominator: {a * d}/{b * d}x + {c * b}/{b * d}x",
+        f"**Step 3:** Add the numerators: {numerator}/{denominator}x",
+        f"**Step 4:** Simplify: {result}",
         f"✨ **Final Answer: {answer}**"
     ]
     
     hints = [
-        f"💡 **Think of it like sharing different sized pizzas! 🍕** You've got {a}/{b} of a pizza with x slices and {c}/{d} of another pizza with x slices. To add them, they need to be cut the same way - find a common denominator!",
-        f"💡 **Get them speaking the same language! 🗣️** Convert both fractions to have the same bottom number (denominator). Multiply {a}/{b} by {d}/{d} and {c}/{d} by {b}/{b}. This doesn't change their value, just how they look!",
-        f"💡 **Now add 'em up! ➕** Once they have the same denominator ({b*d}), just add the top numbers: {a*d} + {c*b} = {numerator}. Don't forget the x! Then simplify if you can."
+        f"💡 **Get them speaking the same language! 🗣️** Convert both fractions to have the same bottom number (denominator).",
+        f"💡 **Now add 'em up! ➕** Once they have the same denominator, just add the top numbers. Don't forget the x!",
+        f"💡 **Simplify!** If your fraction is like 6/4, simplify it to 3/2."
     ]
     
     return expr, answer.replace(" ", ""), steps, hints
@@ -309,9 +287,6 @@ def gen_fraction_simplify_mixed():
     d = random.randint(-8, 8)
     e = random.randint(-6, 6)
     
-    # After distribution: (ac/b)x + (ad/b) + ex
-    # = ((ac + eb)/b)x + (ad/b)
-    
     x_coef = Fraction(a * c + e * b, b)
     constant = Fraction(a * d, b)
     
@@ -319,13 +294,12 @@ def gen_fraction_simplify_mixed():
     expr = expr.replace("+ -", "- ")
     
     # Format answer
+    answer = ""
     if x_coef == 1:
         answer = "x"
     elif x_coef == -1:
         answer = "-x"
-    elif x_coef == 0:
-        answer = ""
-    else:
+    elif x_coef != 0:
         answer = f"{x_coef}x"
     
     if constant > 0 and answer:
@@ -339,20 +313,89 @@ def gen_fraction_simplify_mixed():
     
     steps = [
         f"🎯 **Fraction distribution incoming!**",
-        f"**Step 1:** Distribute {a}/{b} to everything inside",
-        f"   • {a}/{b} × {c}x = {Fraction(a*c, b)}x",
-        f"   • {a}/{b} × {d} = {Fraction(a*d, b)}",
-        f"**Step 2:** Now we have: {Fraction(a*c, b)}x + {Fraction(a*d, b)} + {e}x",
-        f"**Step 3:** Combine x terms (get common denominator if needed):",
-        f"   • {Fraction(a*c, b)}x + {e}x = {x_coef}x",
-        f"**Step 4:** Combine constants: {Fraction(a*d, b)} (If this is 0, it disappears)",
+        f"**Step 1:** Distribute {a}/{b} to everything inside: {Fraction(a*c, b)}x + {Fraction(a*d, b)}",
+        f"**Step 2:** Add the leftover {e}x term: {Fraction(a*c, b)}x + {Fraction(a*d, b)} + {e}x",
+        f"**Step 3:** Combine x terms: {x_coef}x",
         f"✨ **Final Answer: {answer}**"
     ]
     
     hints = [
-        f"💡 **Fractions can distribute too! 🎁** When {a}/{b} multiplies into the parentheses, it multiplies with BOTH {c}x and {d}. Just multiply the tops and keep the bottom!",
-        f"💡 **Mix and match! 🎨** After distributing, you'll have a fraction with x ({Fraction(a*c,b)}x) and a regular x term ({e}x). To add them, turn {e}x into {Fraction(e*b,b)}x - same denominator!",
-        f"💡 **Final lap! 🏁** Add those x terms together (add the numerators, keep denominator {b}). Don't forget about the constant {Fraction(a*d,b)} hanging out by itself!"
+        f"💡 **Fractions can distribute too! 🎁** Multiply {a}/{b} with BOTH {c}x and {d}.",
+        f"💡 **Mix and match! 🎨** Convert {e}x to a fraction with denominator {b} so you can add it to the other x term.",
+        f"💡 **Final lap! 🏁** Add those x terms together. Don't forget the constant {Fraction(a*d,b)}!"
+    ]
+    
+    return expr, answer.replace(" ", ""), steps, hints
+
+def gen_multi_variable_combine():
+    """Generate: ax^2 + bx + cy + d + ex^2 + fx + gy + h (Combine like terms)"""
+    a = random.randint(1, 8)
+    b = random.randint(-10, 10)
+    c = random.randint(-8, 8)
+    d = random.randint(-10, 10)
+    e = random.randint(-6, 6)
+    f = random.randint(-10, 10)
+    g = random.randint(-8, 8)
+    h = random.randint(-10, 10)
+    
+    x2_coef = a + e
+    x_coef = b + f
+    y_coef = c + g
+    constant = d + h
+    
+    # Helper for creating terms in the expression/answer
+    def format_term(coef, var_str, first_term=False):
+        if coef == 0: return ""
+        
+        sign = "+ " if coef > 0 and not first_term else "" if coef > 0 else "- "
+        abs_coef = abs(coef)
+        
+        if abs_coef == 1 and var_str:
+            term = var_str
+        elif abs_coef == 1 and not var_str:
+            term = str(abs_coef)
+        else:
+            term = str(abs_coef) + var_str
+            
+        return (sign + term).strip().replace("+ ", "+")
+    
+    # Build expression (simplified for brevity)
+    expr_parts = [format_term(a, "x^2", True)]
+    expr_parts.append(format_term(b, "x"))
+    expr_parts.append(format_term(c, "y"))
+    expr_parts.append(format_term(d, ""))
+    expr_parts.append(format_term(e, "x^2"))
+    expr_parts.append(format_term(f, "x"))
+    expr_parts.append(format_term(g, "y"))
+    expr_parts.append(format_term(h, ""))
+    
+    expr = " ".join([p.strip() for p in expr_parts if p]).replace(" +", " + ").replace(" -", " - ").strip()
+    
+    # Build answer
+    answer_parts = []
+    answer_parts.append(format_term(x2_coef, "x^2", True))
+    answer_parts.append(format_term(x_coef, "x"))
+    answer_parts.append(format_term(y_coef, "y"))
+    answer_parts.append(format_term(constant, ""))
+    
+    answer = " ".join([p.strip() for p in answer_parts if p]).replace(" +", " + ").replace(" -", " - ").strip()
+    if not answer: answer = "0"
+    
+    steps = [
+        f"🎯 **Lots of variables - let's organize!**",
+        f"**Step 1:** Identify and group like terms (x², x, y, constants)",
+        f"**Step 2:** Combine x² terms: {a}x² + ({e}x²) = **{x2_coef}x²**",
+        f"**Step 3:** Combine x terms: {b}x + ({f}x) = **{x_coef}x**",
+        f"**Step 4:** Combine y terms: {c}y + ({g}y) = **{y_coef}y**",
+        f"**Step 5:** Combine constants: {d} + ({h}) = **{constant}**",
+        f"**Step 6:** Write in order: x² terms, x terms, y terms, then constants",
+        f"✨ **Final Answer: {answer.replace(' ', '')}**"
+    ]
+    
+    hints = [
+        f"💡 **Think of it like sorting laundry! 🧺** Put x² items in one pile, x items in another, y items in another, and numbers in the last pile!",
+        f"💡 **Each variable is its own team! 🏆** x² players combine only with x² players. Regular x players combine only with x players, etc.",
+        f"💡 **Almost there! 🎯** Write your answer starting with x², then x, then y, then the plain number. Watch your negative signs!"
     ]
     
     return expr, answer.replace(" ", ""), steps, hints
@@ -370,20 +413,43 @@ def gen_linear_eq():
     answer = str(x_val)
     
     steps = [
-        f"🎯 **Goal:** Get x all by itself on one side!",
-        f"**Step 1:** Get rid of {b} by subtracting it from both sides",
-        f"   • {a}x + {b} - {b} = {c} - {b}",
-        f"   • **{a}x = {c - b}**",
-        f"**Step 2:** Divide both sides by {a} to isolate x",
-        f"   • {a}x ÷ {a} = {c - b} ÷ {a}",
-        f"   • **x = {x_val}**",
+        f"🎯 **Goal:** Get x all by itself!",
+        f"**Step 1:** Get rid of {b} by subtracting it from both sides: **{a}x = {c - b}**",
+        f"**Step 2:** Divide both sides by {a} to isolate x: **x = {x_val}**",
         f"✨ **Final Answer: x = {x_val}**"
     ]
     
     hints = [
-        f"💡 **Think of it like x is trapped!** 🚪 Right now x is stuck with {b} bothering it. To free x, we need to get rid of {b}. What's the opposite of +{b}? Subtract {b} from BOTH sides (gotta keep it fair!).",
-        f"💡 **Now x has a buddy that won't leave!** 👥 You've got {a}x, but we want just plain x. It's like having {a} friends sharing something - divide by {a} to find out what ONE person gets. Do this to BOTH sides!",
-        f"💡 **Here's the secret formula:** 🔐 Whatever's NEXT to x, do the opposite! If it's +{b}, subtract {b}. If it's ×{a}, divide by {a}. Just remember: what you do to one side, you MUST do to the other - it's the golden rule of equations!"
+        f"💡 **First, deal with the lonely number!** Subtract {b} from BOTH sides.",
+        f"💡 **Now, get rid of the multiplier!** You have {a}x. The opposite of multiplication is division. Divide BOTH sides by {a} to free the x!",
+        f"💡 **Golden Rule:** What you do to one side, you MUST do to the other."
+    ]
+    
+    return equation, answer, steps, hints
+
+def gen_fraction_eq():
+    """Generate: x/a + b = c (Equation with a fractional term)"""
+    a = random.choice([2, 3, 4, 5])
+    b = random.randint(-8, 8)
+    k = random.randint(-5, 5)
+    if k == 0: k = 2
+    c = b + k
+    x_val = k * a
+    
+    equation = f"x/{a} + {b} = {c}".replace("+ -", "- ")
+    answer = str(x_val)
+    
+    steps = [
+        f"🎯 **Goal:** Get x all by itself!",
+        f"**Step 1:** Subtract {b} from both sides: **x/{a} = {c - b}**",
+        f"**Step 2:** Multiply both sides by {a} to isolate x: **x = {x_val}**",
+        f"✨ **Final Answer: x = {x_val}**"
+    ]
+    
+    hints = [
+        f"💡 **First, deal with the lonely number!** Move {b} to the right side by subtracting it from both sides.",
+        f"💡 **Now, get rid of that division!** Multiply BOTH sides by {a} to solve for x!",
+        f"💡 **You're so close!** The equation should be simplified to x/{a} = {c-b}."
     ]
     
     return equation, answer, steps, hints
@@ -409,62 +475,17 @@ def gen_distribute_eq():
     answer = str(x_val)
     
     steps = [
-        f"🎯 **This one has parentheses! Let's break it down:**",
-        f"**Step 1:** Distribute {a} into the parentheses",
-        f"   • {a} × {b}x = {a*b}x",
-        f"   • {a} × {c} = {a*c}",
-        f"   • Now we have: **{a*b}x + {a*c} + {d}x + {e} = {f}**",
-        f"**Step 2:** Combine like terms on the left side",
-        f"   • x terms: {a*b}x + {d}x = **{x_coef}x**",
-        f"   • numbers: {a*c} + {e} = **{const}**",
-        f"   • Simplified: **{x_coef}x + {const} = {f}**",
-        f"**Step 3:** Subtract {const} from both sides",
-        f"   • **{x_coef}x = {f - const}**",
-        f"**Step 4:** Divide both sides by {x_coef}",
-        f"   • **x = {x_val}**",
+        f"🎯 **Step 1:** Distribute {a}: {a*b}x + {a*c} + {d}x + {e} = {f}",
+        f"**Step 2:** Combine like terms on the left: **{x_coef}x + {const} = {f}**",
+        f"**Step 3:** Subtract {const} from both sides: **{x_coef}x = {f - const}**",
+        f"**Step 4:** Divide both sides by {x_coef}: **x = {x_val}**",
         f"✨ **Final Answer: x = {x_val}**"
     ]
     
     hints = [
-        f"💡 **BOSS LEVEL! 🎮** This is like a combo move! First, handle those parentheses - distribute {a} to everything inside (it's like {a} is giving high-fives to {b}x and {c}). Once you break open those parentheses, you can see what you're really working with!",
-        f"💡 **Time to tidy up! 🧹** After distributing, you've got x terms scattered around like toys on the floor. Gather all the x's together (add {a*b}x and {d}x). Then gather all the regular numbers ({a*c} and {e}). Now it looks way simpler, right?",
-        f"💡 **Final boss moves! ⚔️** You should have something like {x_coef}x + {const} = {f}. Now it's just a regular equation! Move {const} to the other side, then divide by {x_coef}. You got this!"
-    ]
-    
-    return equation, answer, steps, hints
-
-def gen_fraction_eq():
-    """Generate: x/a + b = c (Equation with a fractional term)"""
-    a = random.choice([2, 3, 4, 5]) # Denominator (a)
-    b = random.randint(-8, 8)       # Constant (b)
-    
-    # Ensure the final answer is a clean integer for simplicity
-    k = random.randint(-5, 5)
-    if k == 0: k = 2
-    
-    # Recalculate c so that x = k * a is the solution
-    # x/a = k -> x/a + b = k + b
-    c = b + k
-    x_val = k * a
-    
-    equation = f"x/{a} + {b} = {c}".replace("+ -", "- ")
-    answer = str(x_val)
-    
-    steps = [
-        f"🎯 **Goal:** Get x all by itself!",
-        f"**Step 1:** Get rid of the constant {b} by subtracting it from both sides",
-        f"   • x/{a} + {b} - {b} = {c} - {b}",
-        f"   • **x/{a} = {c - b}** (The difference is {c - b})",
-        f"**Step 2:** Multiply both sides by {a} to isolate x",
-        f"   • x/{a} * {a} = {c - b} * {a}",
-        f"   • **x = {x_val}**",
-        f"✨ **Final Answer: x = {x_val}**"
-    ]
-    
-    hints = [
-        f"💡 **First, deal with the lonely number!** The {b} on the left side is all by itself. To move it to the other side, do the opposite of what you see. Subtract {b} from BOTH sides (gotta keep the equation balanced!).",
-        f"💡 **Now, get rid of that division!** You have x divided by {a} ($x/{a}$). The opposite of division is multiplication. Multiply BOTH sides by {a} to free the x!",
-        f"💡 **You're so close!** The equation should be simplified to $x/{a} = {c-b}$. Just multiply both sides by {a} to find x!"
+        f"💡 **First, distribute!** Multiply {a} by everything inside the parentheses.",
+        f"💡 **Time to tidy up! 🧹** Combine all the x terms and all the plain numbers on the left side.",
+        f"💡 **Final boss moves! ⚔️** Move the constant to the right side, then divide by the x coefficient."
     ]
     
     return equation, answer, steps, hints
@@ -477,12 +498,12 @@ def generate_new_problem(problem_type):
             gen_distribute_negative,
             gen_multi_distribute,
             gen_fraction_simplify,
+            gen_multi_variable_combine,
             gen_fraction_simplify_mixed
         ]
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Simplify:"
     else:  # equations
-        # gen_fraction_eq is now defined!
         generators = [gen_linear_eq, gen_distribute_eq, gen_fraction_eq]
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Solve for x:"
@@ -492,28 +513,44 @@ def generate_new_problem(problem_type):
 # ============================================================================
 
 def check_answer(user_input, correct_answer):
-    """Check if answer is correct"""
+    """Check if answer is correct. Handles fractions and reordering attempts."""
     try:
-        user_input = user_input.replace(" ", "")
-        correct_answer = correct_answer.replace(" ", "")
+        # 1. Clean up inputs (remove all spaces)
+        user_input_clean = user_input.replace(" ", "")
+        correct_answer_clean = correct_answer.replace(" ", "")
         
-        if user_input == correct_answer:
+        # 2. Direct string comparison (e.g., for equations or simple expressions)
+        if user_input_clean == correct_answer_clean:
             return True
         
-        if "+" in user_input and "+" in correct_answer:
-            user_parts = sorted(user_input.split("+"))
-            correct_parts = sorted(correct_answer.split("+"))
-            if user_parts == correct_parts:
+        # 3. Handle fraction comparison (for numerical answers like x=5/4 or a simplified constant)
+        try:
+            user_frac = Fraction(user_input_clean)
+            correct_frac = Fraction(correct_answer_clean)
+            if user_frac == correct_frac:
                 return True
+        except ValueError:
+            pass
         
-        if "/" in user_input or "/" in correct_answer:
-            try:
-                return Fraction(user_input) == Fraction(correct_answer)
-            except:
-                pass
+        # 4. Handle term reordering for algebraic expressions
+        def split_and_sort(expression):
+            # Temporarily replace '-' signs with '+-' to split correctly, but handle leading negative
+            expression = expression.replace('-', '+-')
+            if expression.startswith('+-'):
+                expression = expression[1:] 
+            
+            terms = [t for t in expression.split('+') if t]
+            return sorted(terms)
+
+        user_parts = split_and_sort(user_input_clean)
+        correct_parts = split_and_sort(correct_answer_clean)
         
+        if user_parts == correct_parts:
+            return True
+
         return False
-    except:
+
+    except Exception:
         return False
 
 # ============================================================================
@@ -546,7 +583,6 @@ with st.sidebar:
     
     st.header("⚙️ Settings")
     
-    # Store previous problem type to detect changes
     previous_type = st.session_state.problem_type
     
     problem_choice = st.radio(
@@ -555,15 +591,14 @@ with st.sidebar:
         key="problem_choice"
     )
     
+    # Set problem type based on selection
     if problem_choice == "Simplifying Expressions":
         st.session_state.problem_type = 'simplify'
     elif problem_choice == "Solving Equations":
         st.session_state.problem_type = 'equations'
-    else:
-        st.session_state.problem_type = random.choice(['simplify', 'equations'])
     
-    # If problem type changed, generate new problem
-    if previous_type != st.session_state.problem_type:
+    # If problem type changed, reset problem
+    if problem_choice != "Mixed Practice" and previous_type != st.session_state.problem_type:
         st.session_state.current_problem = None
         st.rerun()
     
@@ -578,13 +613,27 @@ with st.sidebar:
     """)
 
 # Main content area
-if st.session_state.current_problem is None or st.button("🔄 New Problem", type="primary", use_container_width=True):
+# Logic to generate a new problem if one isn't loaded or if 'New Problem' is clicked
+if st.session_state.current_problem is None:
+    # Handle mixed practice randomization on first load or manual reload
+    if st.session_state.problem_choice == "Mixed Practice":
+        st.session_state.problem_type = random.choice(['simplify', 'equations'])
+    
     st.session_state.current_problem, st.session_state.current_answer, st.session_state.current_steps, st.session_state.hints, st.session_state.problem_label = generate_new_problem(st.session_state.problem_type)
     st.session_state.show_hint = False
     st.session_state.show_steps = False
     st.session_state.answered = False
     st.session_state.hint_level = 0
     st.rerun()
+
+if st.button("🔄 New Problem", type="primary", use_container_width=True):
+    # For mixed practice, randomize the type on new problem button click
+    if st.session_state.problem_choice == "Mixed Practice":
+        st.session_state.problem_type = random.choice(['simplify', 'equations'])
+        
+    st.session_state.current_problem = None # Triggers the logic above to generate
+    st.rerun()
+
 
 # Display problem
 st.markdown("---")
@@ -597,33 +646,38 @@ st.markdown("---")
 
 # Answer input
 if not st.session_state.answered:
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        user_answer = st.text_input(
-            "Your Answer:",
-            key="answer_input",
-            placeholder="Type your answer here...",
-            help="Write your answer. For fractions, use / (like 3/4). For expressions with x, write like: 2x + 3"
-        )
-    with col2:
-        st.write("")
-        st.write("")
-        submit = st.button("✅ Submit", type="primary", use_container_width=True)
     
-    # Hint buttons
+    # Use a form for the input and the SUBMIT button only
+    with st.form("math_quiz_form", clear_on_submit=True):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            user_answer = st.text_input(
+                "Your Answer:",
+                key="temp_answer_input", 
+                placeholder="Type your answer here...",
+                help="Write your answer. For fractions, use / (like 3/4). For expressions with x, write like: 2x + 3"
+            )
+        with col2:
+            st.write("")
+            st.write("")
+            submit = st.form_submit_button("✅ Submit", type="primary", use_container_width=True)
+            
+    # Hint/Skip buttons are OUTSIDE the form
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("💡 Get a Hint", use_container_width=True):
+            st.session_state.show_hint = True
             if st.session_state.hint_level < len(st.session_state.hints):
-                st.session_state.show_hint = True
                 st.session_state.hint_level += 1
+            st.rerun() 
     with col2:
         if st.button("📝 Show All Steps", use_container_width=True):
             st.session_state.show_steps = True
+            st.rerun() 
     with col3:
         if st.button("⏭️ Skip Problem", use_container_width=True):
             st.session_state.current_problem = None
-            st.rerun()
+            st.rerun() 
     
     # Show hint if requested
     if st.session_state.show_hint and st.session_state.hint_level > 0:
@@ -639,8 +693,8 @@ if not st.session_state.answered:
         st.markdown("### 📖 Solution Steps:")
         for step in st.session_state.current_steps:
             st.markdown(f"<div class='step-box'>{step}</div>", unsafe_allow_html=True)
-    
-    # Check answer
+
+    # Check answer only if the form was submitted and there is an answer
     if submit and user_answer:
         if check_answer(user_answer, st.session_state.current_answer):
             # Correct!
@@ -661,6 +715,7 @@ if not st.session_state.answered:
             if st.session_state.streak >= 3:
                 st.balloons()
                 st.markdown(f"<h3 style='text-align: center;'>🔥🔥🔥 {st.session_state.streak} IN A ROW! YOU'RE ON FIRE! 🔥🔥🔥</h3>", unsafe_allow_html=True)
+            st.rerun()
             
         else:
             # Incorrect
@@ -675,10 +730,10 @@ if not st.session_state.answered:
                 st.markdown(f"<div class='step-box'>{step}</div>", unsafe_allow_html=True)
             
             st.info("💪 Don't worry! Making mistakes is how we learn. Try another one!")
+            st.rerun()
 
 # If answered, show next button
 if st.session_state.answered:
     st.markdown("---")
     if st.button("➡️ Next Problem", type="primary", use_container_width=True):
-        st.session_state.current_problem = None
         st.rerun()
