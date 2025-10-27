@@ -324,47 +324,178 @@ def gen_distribute_eq():
 
 
 # ============================================================================
-# NEW UNIT RATE GENERATOR
+# UNIT RATE AND RATIO GENERATORS
 # ============================================================================
 
-def gen_unit_rate():
-    """Generate a word problem asking for a unit rate."""
+def gen_unit_rate_basic():
+    """Generate a basic word problem asking for a unit rate."""
     
     scenarios = [
         ("miles", "hours", "a road trip"),
         ("dollars", "pounds of bananas", "grocery shopping"),
         ("words", "minutes", "typing a report"),
-        ("pages", "days", "reading a book")
+        ("pages", "days", "reading a book"),
+        ("meters", "seconds", "running a race"),
+        ("gallons", "miles", "driving your car"),
+        ("cups", "servings", "making lemonade")
     ]
     
     unit1, unit2, context = random.choice(scenarios)
     
-    # Ensure the rate is a clean, whole number or a simple decimal for 7th grade
+    # Ensure the rate is a clean, whole number for basic problems
     rate = random.randint(5, 50)
     denominator = random.randint(2, 10)
     numerator = rate * denominator
     
-    # Determine the label for the answer (e.g., "miles per hour")
     answer_label = f"{unit1} per {unit2.rstrip('s')}"
 
-    problem = f"During {context}, you moved **{numerator} {unit1}** in **{denominator} {unit2}**. What is the **unit rate**?"
+    problem = f"During {context}, you traveled **{numerator} {unit1}** in **{denominator} {unit2}**. What is the **unit rate**?"
     
     answer = str(rate)
     
     steps = [
         "🎯 **Unit Rate Goal:** Find out how much for **1 unit** (e.g., 1 hour, 1 pound, 1 minute).",
-        f"**Step 1: Set up the division:** Rate = $\\frac{{\\text{{Quantity 1}}}}{{\\text{{Quantity 2}}}} = \\frac{{{numerator} \\text{{ {unit1}}}}}{{{denominator} \\text{{ {unit2}}}}}$",
+        f"**Step 1: Set up the division:** Rate = $\\frac{{\\text{{Total Quantity}}}}{{\\text{{Total Units}}}} = \\frac{{{numerator} \\text{{ {unit1}}}}}{{{denominator} \\text{{ {unit2}}}}}$",
         f"**Step 2: Divide:** {numerator} $\\div$ {denominator} = **{rate}**",
         f"✨ **Final Answer:** {rate} {answer_label}"
     ]
     
     hints = [
         f"💡 **Think simple division!** Just divide the first number ({numerator}) by the second number ({denominator}).",
-        "💡 **You're finding the cost or distance for just ONE!** Divide the total by the count.",
+        "💡 **You're finding the amount for just ONE unit!** Divide the total by the count.",
         f"💡 **Remember the question:** You need to find the rate in {unit1} **per 1** {unit2.rstrip('s')}."
     ]
     
     return problem, answer, steps, hints, "Find the Unit Rate:"
+
+
+def gen_unit_rate_reverse():
+    """Generate a problem where you find the total given unit rate and number of units."""
+    
+    scenarios = [
+        ("miles per hour", "miles", "hours", "driving"),
+        ("pages per day", "pages", "days", "reading"),
+        ("words per minute", "words", "minutes", "typing"),
+        ("pounds per week", "pounds", "weeks", "weight loss"),
+        ("dollars per hour", "dollars", "hours", "working")
+    ]
+    
+    rate_label, unit1, unit2, context = random.choice(scenarios)
+    unit_rate = random.randint(10, 60)
+    units = random.randint(3, 10)
+    
+    total = unit_rate * units
+    
+    problem = f"If you're moving at a rate of **{unit_rate} {rate_label}** and you continue for **{units} {unit2}**, how many **{unit1}** will you travel?"
+    
+    answer = str(total)
+    
+    steps = [
+        "🎯 **Reverse Unit Rate:** You have the rate and need to find the total.",
+        f"**Step 1: Identify what you know:** Rate = {unit_rate} {rate_label}, Time = {units} {unit2}",
+        f"**Step 2: Multiply:** Total = Rate × Units = {unit_rate} × {units}",
+        f"**Step 3: Calculate:** {unit_rate} × {units} = **{total}**",
+        f"✨ **Final Answer:** {total} {unit1}"
+    ]
+    
+    hints = [
+        f"💡 **Think multiplication!** You have the rate ({unit_rate}) and you need to multiply it by {units}.",
+        "💡 **Rate × Time = Total!** If you know the speed, multiply by the time to get UNIT RATE × UNITS = TOTAL.",
+        f"💡 **Use the formula:** {unit_rate} × {units} = ?"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Total:"
+
+
+def gen_equivalent_ratios():
+    """Generate equivalent ratio problems."""
+    
+    scenarios = [
+        ("students", "computers", "the computer lab"),
+        ("cookies", "brownies", "baking"),
+        ("blue", "red", "mixing paint"),
+        ("dogs", "cats", "the pet store")
+    ]
+    
+    unit1, unit2, context = random.choice(scenarios)
+    
+    # Start with a simple ratio
+    a = random.randint(2, 5)
+    b = random.randint(2, 6)
+    
+    # Generate equivalent ratio
+    multiplier = random.randint(2, 5)
+    c = a * multiplier
+    d = b * multiplier
+    
+    problem = f"In {context}, the ratio of **{unit1} to {unit2}** is **{a}:{b}**. If there are **{c} {unit1}**, how many **{unit2}** are there?"
+    
+    answer = str(d)
+    
+    steps = [
+        f"🎯 **Equivalent Ratios:** A:{b} must equal {c}:?",
+        f"**Step 1: Set up the proportion:** $\\frac{{{a}}}{{{b}}} = \\frac{{{c}}}{{?}}$",
+        f"**Step 2: Identify the scale factor:** {c} $\\div$ {a} = {multiplier}",
+        f"**Step 3: Apply the scale factor:** {b} × {multiplier} = **{d}**",
+        f"✨ **Final Answer:** {d} {unit2}"
+    ]
+    
+    hints = [
+        f"💡 **Find the multiplier!** If {a} became {c}, you multiplied by {c}/{a}. Do the same to {b}!",
+        f"💡 **Proportion thinking:** The ratio {a}:{b} must stay the same. If {a} becomes {c} (×{multiplier}), then {b} becomes {b}×{multiplier}.",
+        f"💡 **Cross multiplication:** {a} × ? = {b} × {c}, so ? = ({b} × {c}) ÷ {a}"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Missing Value:"
+
+
+def gen_comparing_rates():
+    """Generate problems comparing two different rates."""
+    
+    items = [
+        ("beats per minute", "playlist"),
+        ("items per hour", "assembly line"),
+        ("miles per gallon", "car"),
+        ("problems per hour", "homework")
+    ]
+    
+    rate_label, context = random.choice(items)
+    
+    rate1 = random.randint(35, 80)
+    rate2 = random.randint(15, rate1 - 10)
+    
+    # Ensure rate1 is always larger so answer is predictable
+    diff = rate1 - rate2
+    
+    problem = f"You complete **{rate1} {rate_label}** on Task A and **{rate2} {rate_label}** on Task B. How many more {rate_label} does Task A complete?"
+    
+    answer = str(diff)
+    
+    steps = [
+        "🎯 **Comparing Rates:** Find the difference between the two rates.",
+        f"**Step 1: Identify both rates:** Task A: {rate1}, Task B: {rate2}",
+        f"**Step 2: Find the difference:** {rate1} - {rate2} = **{diff}**",
+        f"✨ **Final Answer:** Task A completes {diff} more {rate_label}"
+    ]
+    
+    hints = [
+        f"💡 **Subtract the rates!** {rate1} - {rate2} = ?",
+        f"💡 **Find the difference:** Subtract the smaller number ({rate2}) from the larger number ({rate1}).",
+        f"💡 **Task A has {diff} more {rate_label} than Task B.**"
+    ]
+    
+    return problem, answer, steps, hints, "Compare the Rates:"
+
+
+def gen_unit_rate():
+    """Pick a random unit rate problem type."""
+    generators = [
+        gen_unit_rate_basic,
+        gen_unit_rate_reverse,
+        gen_equivalent_ratios,
+        gen_comparing_rates
+    ]
+    return random.choice(generators)()
 
 
 # ============================================================================
