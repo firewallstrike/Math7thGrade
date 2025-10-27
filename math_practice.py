@@ -119,7 +119,7 @@ def init_session_state():
 init_session_state()
 
 # ============================================================================
-# PROBLEM GENERATION FUNCTIONS
+# PROBLEM GENERATION FUNCTIONS (Unchanged, as they need to be dynamic)
 # ============================================================================
 
 # Helper function to generate an algebraic expression answer string
@@ -490,21 +490,39 @@ def gen_distribute_eq():
     
     return equation, answer, steps, hints
 
-def generate_new_problem(problem_type):
-    """Generate a new problem based on type"""
-    if problem_type == 'simplify':
-        generators = [
+# ============================================================================
+# CACHED RESOURCES
+# ============================================================================
+
+@st.cache_resource
+def get_generator_sets():
+    """Caches the list of generator functions (a static resource)."""
+    return {
+        'simplify': [
             gen_distribute_combine, 
             gen_distribute_negative,
             gen_multi_distribute,
             gen_fraction_simplify,
             gen_multi_variable_combine,
             gen_fraction_simplify_mixed
+        ],
+        'equations': [
+            gen_linear_eq, 
+            gen_distribute_eq, 
+            gen_fraction_eq
         ]
+    }
+
+def generate_new_problem(problem_type):
+    """Generate a new problem based on type."""
+    generator_sets = get_generator_sets() # Use the cached list
+    
+    if problem_type == 'simplify':
+        generators = generator_sets['simplify']
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Simplify:"
     else:  # equations
-        generators = [gen_linear_eq, gen_distribute_eq, gen_fraction_eq]
+        generators = generator_sets['equations']
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Solve for x:"
 
@@ -534,13 +552,13 @@ def check_answer(user_input, correct_answer):
         
         # 4. Handle term reordering for algebraic expressions
         def split_and_sort(expression):
+            import re
             # Temporarily replace '-' signs with '+-' to split correctly, but handle leading negative
             expression = expression.replace('-', '+-')
             if expression.startswith('+-'):
                 expression = expression[1:] 
             
-            # Use regex to split by '+' but keep the +/- signs with the terms
-            import re
+            # Find all terms (including their signs)
             terms = re.findall(r'[+-]?[^+-]+', expression)
             # Clean up leading '+' signs that might be left from the split
             terms = [t.lstrip('+') for t in terms if t.lstrip('+')]
@@ -608,6 +626,15 @@ with st.sidebar:
     
     st.divider()
     
+    # --- GOLDEN RULE REMINDER (Enhanced Visual Cue) ---
+    current_rule = ""
+    if st.session_state.problem_type == 'simplify':
+        current_rule = "Match up the X's with the X's, and the numbers with the numbers! 🍎=🍎"
+    else:
+        current_rule = "Golden Rule: What you do to one side, you MUST do to the other! ⚖️"
+        
+    st.info(f"🧠 **Today's Focus:** {current_rule}", icon="⭐")
+
     st.markdown("""
     ### 💡 Tips for Success
     - Take breaks when you need them
@@ -628,7 +655,7 @@ if st.session_state.current_problem is None:
     st.session_state.show_steps = False
     st.session_state.answered = False
     st.session_state.hint_level = 0
-    # The previous problematic st.rerun() is REMOVED here to prevent the infinite loop.
+    # NO st.rerun() needed here.
 
 if st.button("🔄 New Problem", type="primary", use_container_width=True):
     # For mixed practice, randomize the type on new problem button click
@@ -641,10 +668,10 @@ if st.button("🔄 New Problem", type="primary", use_container_width=True):
 
 # Display problem
 st.markdown("---")
-col1, col2, col3 = st.columns([1, 3, 1])
+col1, col2, col3 = st.columns([1, 8, 1])
 with col2:
-    st.markdown(f"## {st.session_state.problem_label}")
-    st.markdown(f"### `{st.session_state.current_problem}`")
+    # SIMPLIFIED PROBLEM DISPLAY
+    st.markdown(f"## {st.session_state.problem_label} **`{st.session_state.current_problem}`**")
 
 st.markdown("---")
 
@@ -656,10 +683,10 @@ if not st.session_state.answered:
         col1, col2 = st.columns([3, 1])
         with col1:
             user_answer = st.text_input(
-                "Your Answer:",
+                "Type your answer here, then click Submit:", # Simplified label
                 key="temp_answer_input", 
-                placeholder="Type your answer here...",
-                help="Write your answer. For fractions, use / (like 3/4). For expressions with x, write like: 2x + 3"
+                placeholder="Example: 2x+5 or x=3/4", # Better placeholder
+                help="Write your answer. For fractions, use / (like 3/4)."
             )
         with col2:
             st.write("")
@@ -692,11 +719,12 @@ if not st.session_state.answered:
         </div>
         """, unsafe_allow_html=True)
     
-    # Show steps if requested
+    # Show steps if requested (Enhanced Visual Cue)
     if st.session_state.show_steps:
         st.markdown("### 📖 Solution Steps:")
-        for step in st.session_state.current_steps:
-            st.markdown(f"<div class='step-box'>{step}</div>", unsafe_allow_html=True)
+        for i, step in enumerate(st.session_state.current_steps):
+            st.markdown(f"<div class='step-box'>**Step {i+1}:** {step}</div>", unsafe_allow_html=True)
+
 
     # Check answer only if the form was submitted and there is an answer
     if submit and user_answer:
@@ -719,7 +747,7 @@ if not st.session_state.answered:
             if st.session_state.streak >= 3:
                 st.balloons()
                 st.markdown(f"<h3 style='text-align: center;'>🔥🔥🔥 {st.session_state.streak} IN A ROW! YOU'RE ON FIRE! 🔥🔥🔥</h3>", unsafe_allow_html=True)
-            st.rerun()
+            st.rerun() 
             
         else:
             # Incorrect
@@ -730,8 +758,8 @@ if not st.session_state.answered:
             st.error(f"Not quite! The correct answer is: **{st.session_state.current_answer}**")
             
             st.markdown("### 📖 Here's how to solve it:")
-            for step in st.session_state.current_steps:
-                st.markdown(f"<div class='step-box'>{step}</div>", unsafe_allow_html=True)
+            for i, step in enumerate(st.session_state.current_steps):
+                st.markdown(f"<div class='step-box'>**Step {i+1}:** {step}</div>", unsafe_allow_html=True)
             
             st.info("💪 Don't worry! Making mistakes is how we learn. Try another one!")
             st.rerun()
@@ -739,7 +767,6 @@ if not st.session_state.answered:
 # If answered, show next button
 if st.session_state.answered:
     st.markdown("---")
-    # This button triggers the logic at the top (setting current_problem = None)
     if st.button("➡️ Next Problem", type="primary", use_container_width=True):
         st.session_state.current_problem = None 
         st.rerun()
