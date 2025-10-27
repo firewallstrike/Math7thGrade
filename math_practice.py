@@ -350,7 +350,7 @@ def gen_multi_variable_combine():
         sign = "+ " if coef > 0 and not first_term else "" if coef > 0 else "- "
         abs_coef = abs(coef)
         
-        if abs_coef == 1 and var_str:
+        if abs_coef == 1 and var_str and var_str != "":
             term = var_str
         elif abs_coef == 1 and not var_str:
             term = str(abs_coef)
@@ -539,7 +539,11 @@ def check_answer(user_input, correct_answer):
             if expression.startswith('+-'):
                 expression = expression[1:] 
             
-            terms = [t for t in expression.split('+') if t]
+            # Use regex to split by '+' but keep the +/- signs with the terms
+            import re
+            terms = re.findall(r'[+-]?[^+-]+', expression)
+            # Clean up leading '+' signs that might be left from the split
+            terms = [t.lstrip('+') for t in terms if t.lstrip('+')]
             return sorted(terms)
 
         user_parts = split_and_sort(user_input_clean)
@@ -624,7 +628,7 @@ if st.session_state.current_problem is None:
     st.session_state.show_steps = False
     st.session_state.answered = False
     st.session_state.hint_level = 0
-    st.rerun()
+    # The previous problematic st.rerun() is REMOVED here to prevent the infinite loop.
 
 if st.button("🔄 New Problem", type="primary", use_container_width=True):
     # For mixed practice, randomize the type on new problem button click
@@ -735,5 +739,7 @@ if not st.session_state.answered:
 # If answered, show next button
 if st.session_state.answered:
     st.markdown("---")
+    # This button triggers the logic at the top (setting current_problem = None)
     if st.button("➡️ Next Problem", type="primary", use_container_width=True):
+        st.session_state.current_problem = None 
         st.rerun()
