@@ -115,6 +115,10 @@ def init_session_state():
         st.session_state.problem_type = 'simplify'
     if 'hint_level' not in st.session_state:
         st.session_state.hint_level = 0
+    if 'hints' not in st.session_state:
+        st.session_state.hints = []
+    if 'problem_choice' not in st.session_state:
+        st.session_state.problem_choice = "Simplifying Expressions"
 
 init_session_state()
 
