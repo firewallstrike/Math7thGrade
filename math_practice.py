@@ -685,7 +685,7 @@ if not st.session_state.answered:
             user_answer = st.text_input(
                 "Type your answer here, then click Submit:", # Simplified label
                 key="temp_answer_input", 
-                placeholder="Example: 2x+5 or x=3/4", # Better placeholder
+                placeholder="Example: 2x+5 or 3/4", # Better placeholder
                 help="Write your answer. For fractions, use / (like 3/4)."
             )
         with col2:
