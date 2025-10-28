@@ -294,11 +294,49 @@ def gen_fraction_simplify_mixed():
     e = random.randint(-6, 6)
     
     x_coef = Fraction(a * c + e * b, b)
+    constant = Fraction(a * d, b)
     
     expr = f"{a}/{b}({c}x + {d}) + {e}x"
-    answer = format_answer_string(x_coef, 0) # Placeholder
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    # Format the answer properly with both x term and constant
+    if constant == 0:
+        answer = format_answer_string(x_coef, 0)
+    else:
+        # We need to combine the x term and constant with common denominator
+        if x_coef.denominator == 1:
+            # x_coef is a whole number
+            if constant.denominator == 1:
+                # Both whole numbers
+                answer = format_answer_string(x_coef.numerator, constant.numerator)
+            else:
+                # x_coef whole, constant fraction
+                answer = f"{x_coef.numerator}x + {constant}"
+        else:
+            # x_coef is a fraction
+            if constant == 0:
+                answer = f"{x_coef}x"
+            else:
+                # Both are fractions with same denominator
+                if constant.denominator == x_coef.denominator:
+                    answer = f"{x_coef.numerator}x + {constant.numerator}/{constant.denominator}"
+                else:
+                    answer = f"{x_coef}x + {constant}"
+    
+    steps = [
+        f"🎯 **Fraction distribution!** The {a}/{b} needs to multiply both terms inside the parentheses.",
+        f"**Step 1: Distribute {a}/{b}:** ({a}/{b}) × {c}x = {a*c}/{b}x, and ({a}/{b}) × {d} = {a*d}/{b}",
+        f"📝 Now we have: **{a*c}/{b}x {('+' if a*d >= 0 else '-')} {abs(a*d)}/{b} + {e}x**",
+        f"**Step 2: Get common denominator for x terms:** {e}x = {e*b}/{b}x",
+        f"**Step 3: Combine x terms:** {a*c}/{b}x + {e*b}/{b}x = {a*c + e*b}/{b}x",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **Distribute the fraction!** {a}/{b} needs to be multiplied with EVERYTHING: {c}x and {d}",
+        f"💡 **Get common denominators!** Turn {e}x into a fraction with denominator {b}: {e}x = {e*b}/{b}x",
+        f"💡 **Combine the x terms!** Add {a*c}/{b}x + {e*b}/{b}x = {a*c + e*b}/{b}x = {x_coef}x"
+    ]
+    
     return expr, answer.replace(" ", ""), steps, hints
 
 def gen_multi_variable_combine():
@@ -586,6 +624,319 @@ def gen_unit_rate():
 
 
 # ============================================================================
+# GEOMETRY PROBLEM GENERATORS
+# ============================================================================
+
+def gen_rectangle_area():
+    """Generate a problem to find the area of a rectangle."""
+    length = random.randint(5, 20)
+    width = random.randint(3, 15)
+    
+    area = length * width
+    
+    problem = f"Find the area of a rectangle with length **{length} units** and width **{width} units**."
+    answer = str(area)
+    
+    steps = [
+        f"🎯 **Finding rectangle area:** Multiply length × width.",
+        f"**Step 1: Identify the formula:** Area = Length × Width",
+        f"**Step 2: Substitute the values:** Area = {length} × {width}",
+        f"**Step 3: Calculate:** Area = **{area} square units**",
+        f"✨ **Final Answer:** {area} square units"
+    ]
+    
+    hints = [
+        f"💡 **Use the area formula!** Area of a rectangle = Length × Width",
+        f"💡 **Multiply the dimensions!** {length} × {width}",
+        f"💡 **Don't forget the units!** The answer should be in square units."
+    ]
+    
+    return problem, answer, steps, hints, "Find the Area:"
+
+
+def gen_triangle_area():
+    """Generate a problem to find the area of a triangle."""
+    base = random.randint(4, 20)
+    height = random.randint(3, 15)
+    
+    # Make sure the area is a whole number for simplicity
+    area = (base * height) // 2
+    
+    problem = f"Find the area of a triangle with base **{base} units** and height **{height} units**."
+    answer = str(area)
+    
+    steps = [
+        f"🎯 **Finding triangle area:** Use the formula Area = (base × height) ÷ 2.",
+        f"**Step 1: Identify the formula:** Area = (Base × Height) ÷ 2",
+        f"**Step 2: Substitute the values:** Area = ({base} × {height}) ÷ 2",
+        f"**Step 3: Multiply first:** {base} × {height} = {base * height}",
+        f"**Step 4: Divide by 2:** {base * height} ÷ 2 = **{area}**",
+        f"✨ **Final Answer:** {area} square units"
+    ]
+    
+    hints = [
+        f"💡 **Use the triangle area formula!** Area = (Base × Height) ÷ 2",
+        f"💡 **Multiply first, then divide!** ({base} × {height}) ÷ 2",
+        f"💡 **Don't forget to divide by 2!** That's what makes it a triangle formula."
+    ]
+    
+    return problem, answer, steps, hints, "Find the Area:"
+
+
+def gen_perimeter():
+    """Generate a problem to find the perimeter of a polygon."""
+    # Choose between rectangle, square, or triangle
+    shape_type = random.choice(["rectangle", "square", "triangle"])
+    
+    if shape_type == "rectangle":
+        length = random.randint(5, 20)
+        width = random.randint(3, 15)
+        perimeter = 2 * (length + width)
+        
+        problem = f"Find the perimeter of a rectangle with length **{length} units** and width **{width} units**."
+        
+        steps = [
+            f"🎯 **Finding rectangle perimeter:** Add all sides (or use the formula).",
+            f"**Step 1: Identify the formula:** Perimeter = 2 × (Length + Width)",
+            f"**Step 2: Substitute the values:** Perimeter = 2 × ({length} + {width})",
+            f"**Step 3: Calculate inside parentheses:** {length} + {width} = {length + width}",
+            f"**Step 4: Multiply by 2:** 2 × {length + width} = **{perimeter}**",
+            f"✨ **Final Answer:** {perimeter} units"
+        ]
+        
+        hints = [
+            f"💡 **Use the perimeter formula!** Perimeter = 2 × (Length + Width)",
+            f"💡 **Or add all four sides!** {length} + {width} + {length} + {width}",
+            f"💡 **Remember:** Perimeter is the distance around the shape."
+        ]
+        
+    elif shape_type == "square":
+        side = random.randint(5, 20)
+        perimeter = 4 * side
+        
+        problem = f"Find the perimeter of a square with side length **{side} units**."
+        
+        steps = [
+            f"🎯 **Finding square perimeter:** Multiply the side length by 4.",
+            f"**Step 1: Identify the formula:** Perimeter = 4 × Side Length",
+            f"**Step 2: Substitute the value:** Perimeter = 4 × {side}",
+            f"**Step 3: Calculate:** 4 × {side} = **{perimeter}**",
+            f"✨ **Final Answer:** {perimeter} units"
+        ]
+        
+        hints = [
+            f"💡 **Use the square perimeter formula!** Perimeter = 4 × Side Length",
+            f"💡 **Or add all four sides!** {side} + {side} + {side} + {side}",
+            f"💡 **Remember:** A square has 4 equal sides."
+        ]
+        
+    else:  # triangle
+        side1 = random.randint(5, 15)
+        side2 = random.randint(5, 15)
+        side3 = random.randint(max(side1, side2) - min(side1, side2) + 1, side1 + side2 - 1)  # Triangle inequality
+        perimeter = side1 + side2 + side3
+        
+        problem = f"Find the perimeter of a triangle with sides **{side1} units**, **{side2} units**, and **{side3} units**."
+        
+        steps = [
+            f"🎯 **Finding triangle perimeter:** Add all three sides.",
+            f"**Step 1: Identify the formula:** Perimeter = Side 1 + Side 2 + Side 3",
+            f"**Step 2: Substitute the values:** Perimeter = {side1} + {side2} + {side3}",
+            f"**Step 3: Calculate:** {side1} + {side2} + {side3} = **{perimeter}**",
+            f"✨ **Final Answer:** {perimeter} units"
+        ]
+        
+        hints = [
+            f"💡 **Add all three sides!** Perimeter = {side1} + {side2} + {side3}",
+            f"💡 **Remember:** Perimeter is the distance around the shape.",
+            f"💡 **Just add them up!** No special formula needed for triangle perimeter."
+        ]
+    
+    answer = str(perimeter)
+    return problem, answer, steps, hints, "Find the Perimeter:"
+
+
+def gen_circle_area():
+    """Generate a problem to find the area of a circle."""
+    # Use simple radius values to avoid complex calculations
+    radius = random.randint(1, 10)
+    
+    # Use 3.14 for pi to keep calculations simple
+    pi = 3.14
+    area = pi * radius * radius
+    
+    # Round to 2 decimal places for simplicity
+    area = round(area, 2)
+    
+    problem = f"Find the area of a circle with radius **{radius} units**. Use π = 3.14."
+    answer = str(area)
+    
+    steps = [
+        f"🎯 **Finding circle area:** Use the formula Area = π × r².",
+        f"**Step 1: Identify the formula:** Area = π × radius²",
+        f"**Step 2: Substitute the values:** Area = 3.14 × {radius}²",
+        f"**Step 3: Calculate the square:** {radius}² = {radius * radius}",
+        f"**Step 4: Multiply by π:** 3.14 × {radius * radius} = **{area}**",
+        f"✨ **Final Answer:** {area} square units"
+    ]
+    
+    hints = [
+        f"💡 **Use the circle area formula!** Area = π × radius²",
+        f"💡 **Square the radius first!** {radius}² = {radius * radius}",
+        f"💡 **Then multiply by π (3.14)!** 3.14 × {radius * radius}"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Area:"
+
+
+def gen_geometry():
+    """Pick a random geometry problem type."""
+    generators = [
+        gen_rectangle_area,
+        gen_triangle_area,
+        gen_perimeter,
+        gen_circle_area
+    ]
+    return random.choice(generators)()
+
+
+# ============================================================================
+# PERCENTAGE PROBLEM GENERATORS
+# ============================================================================
+
+def gen_basic_percentage():
+    """Generate a basic percentage calculation problem."""
+    whole = random.randint(20, 200)
+    percentage = random.randint(5, 95)
+    
+    # Ensure percentage is a nice number (multiple of 5)
+    percentage = (percentage // 5) * 5
+    
+    result = whole * percentage / 100
+    
+    problem = f"What is **{percentage}%** of **{whole}**?"
+    answer = str(int(result)) if result.is_integer() else str(result)
+    
+    steps = [
+        f"🎯 **Finding a percentage:** Convert the percentage to a decimal, then multiply.",
+        f"**Step 1: Convert {percentage}% to a decimal:** {percentage}% = {percentage/100}",
+        f"**Step 2: Multiply by the whole amount:** {percentage/100} × {whole} = **{result}**",
+        f"✨ **Final Answer:** {answer}"
+    ]
+    
+    hints = [
+        f"💡 **Convert to decimal first!** {percentage}% means {percentage} out of 100, or {percentage/100}.",
+        f"💡 **Use the formula:** Percentage of a number = (percentage/100) × number",
+        f"💡 **Calculate:** {percentage/100} × {whole} = ?"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Percentage:"
+
+
+def gen_percentage_increase():
+    """Generate a percentage increase problem."""
+    original = random.randint(20, 200)
+    percentage = random.randint(5, 100)
+    
+    # Ensure percentage is a nice number (multiple of 5)
+    percentage = (percentage // 5) * 5
+    
+    increase = original * percentage / 100
+    new_value = original + increase
+    
+    problem = f"A value of **{original}** increases by **{percentage}%**. What is the new value?"
+    answer = str(int(new_value)) if new_value.is_integer() else str(new_value)
+    
+    steps = [
+        f"🎯 **Percentage increase:** Find the increase, then add to original.",
+        f"**Step 1: Calculate the increase:** {percentage}% of {original} = {percentage/100} × {original} = {increase}",
+        f"**Step 2: Add the increase to the original:** {original} + {increase} = **{new_value}**",
+        f"✨ **Final Answer:** {answer}"
+    ]
+    
+    hints = [
+        f"💡 **First find the amount of increase!** {percentage}% of {original}",
+        f"💡 **Then add to the original value!** Original + Increase = New Value",
+        f"💡 **Calculate:** {original} + ({percentage/100} × {original}) = ?"
+    ]
+    
+    return problem, answer, steps, hints, "Find the New Value:"
+
+
+def gen_percentage_decrease():
+    """Generate a percentage decrease problem."""
+    original = random.randint(50, 500)
+    percentage = random.randint(5, 75)
+    
+    # Ensure percentage is a nice number (multiple of 5)
+    percentage = (percentage // 5) * 5
+    
+    decrease = original * percentage / 100
+    new_value = original - decrease
+    
+    problem = f"A price of **${original}** is discounted by **{percentage}%**. What is the sale price?"
+    answer = str(int(new_value)) if new_value.is_integer() else str(new_value)
+    
+    steps = [
+        f"🎯 **Percentage decrease:** Find the discount, then subtract from original.",
+        f"**Step 1: Calculate the discount:** {percentage}% of ${original} = {percentage/100} × ${original} = ${decrease}",
+        f"**Step 2: Subtract the discount from the original:** ${original} - ${decrease} = **${new_value}**",
+        f"✨ **Final Answer:** ${answer}"
+    ]
+    
+    hints = [
+        f"💡 **First find the amount of discount!** {percentage}% of ${original}",
+        f"💡 **Then subtract from the original price!** Original - Discount = Sale Price",
+        f"💡 **Calculate:** ${original} - ({percentage/100} × ${original}) = ?"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Sale Price:"
+
+
+def gen_find_percentage():
+    """Generate a problem to find what percentage one number is of another."""
+    whole = random.randint(20, 100)
+    
+    # Create a percentage that will result in a clean number
+    percentage = random.randint(5, 95)
+    percentage = (percentage // 5) * 5
+    
+    part = whole * percentage / 100
+    
+    # Ensure part is an integer for simplicity
+    part = int(part)
+    
+    problem = f"**{part}** is what percentage of **{whole}**?"
+    answer = str(percentage)
+    
+    steps = [
+        f"🎯 **Finding the percentage:** Divide the part by the whole, then multiply by 100.",
+        f"**Step 1: Set up the equation:** Percentage = (Part ÷ Whole) × 100%",
+        f"**Step 2: Calculate:** ({part} ÷ {whole}) × 100% = {part/whole:.4f} × 100% = **{percentage}%**",
+        f"✨ **Final Answer:** {percentage}%"
+    ]
+    
+    hints = [
+        f"💡 **Use the formula:** Percentage = (Part ÷ Whole) × 100%",
+        f"💡 **Divide first!** {part} ÷ {whole} = {part/whole:.4f}",
+        f"💡 **Then convert to percentage!** {part/whole:.4f} × 100% = {percentage}%"
+    ]
+    
+    return problem, answer, steps, hints, "Find the Percentage:"
+
+
+def gen_percentage():
+    """Pick a random percentage problem type."""
+    generators = [
+        gen_basic_percentage,
+        gen_percentage_increase,
+        gen_percentage_decrease,
+        gen_find_percentage
+    ]
+    return random.choice(generators)()
+
+
+# ============================================================================
 # CACHED RESOURCES
 # ============================================================================
 
@@ -609,6 +960,14 @@ def get_generator_sets():
         # NEW RATES CATEGORY
         'rates': [
             gen_unit_rate
+        ],
+        # NEW PERCENTAGES CATEGORY
+        'percentages': [
+            gen_percentage
+        ],
+        # NEW GEOMETRY CATEGORY
+        'geometry': [
+            gen_geometry
         ]
     }
 
@@ -629,6 +988,14 @@ def generate_new_problem(problem_type):
         else:
             expr, answer, steps, hints = result
             return expr, answer, steps, hints, "Find the Unit Rate:"
+    elif problem_type == 'percentages':
+        generators = generator_sets['percentages']
+        result = random.choice(generators)()
+        return result
+    elif problem_type == 'geometry':
+        generators = generator_sets['geometry']
+        result = random.choice(generators)()
+        return result
     else:  # equations
         generators = generator_sets['equations']
         expr, answer, steps, hints = random.choice(generators)()
@@ -710,10 +1077,10 @@ with st.sidebar:
     
     previous_type = st.session_state.problem_type
     
-    # UPDATED PROBLEM CHOICE FOR UNIT RATES
+    # UPDATED PROBLEM CHOICE FOR ALL CATEGORIES
     problem_choice = st.radio(
         "What do you want to practice?",
-        ["Simplifying Expressions", "Solving Equations", "Unit Rates", "Mixed Practice"],
+        ["Simplifying Expressions", "Solving Equations", "Unit Rates", "Percentages", "Geometry", "Mixed Practice"],
         key="problem_choice"
     )
     
@@ -722,8 +1089,12 @@ with st.sidebar:
         st.session_state.problem_type = 'simplify'
     elif problem_choice == "Solving Equations":
         st.session_state.problem_type = 'equations'
-    elif problem_choice == "Unit Rates": # NEW LOGIC
+    elif problem_choice == "Unit Rates":
         st.session_state.problem_type = 'rates'
+    elif problem_choice == "Percentages":
+        st.session_state.problem_type = 'percentages'
+    elif problem_choice == "Geometry":
+        st.session_state.problem_type = 'geometry'
     
     # If problem type changed, reset problem
     if problem_choice != "Mixed Practice" and previous_type != st.session_state.problem_type:
@@ -738,8 +1109,12 @@ with st.sidebar:
         current_rule = "Match up the X's with the X's, and the numbers with the numbers! 🍎=🍎"
     elif st.session_state.problem_type == 'equations':
         current_rule = "Golden Rule: What you do to one side, you MUST do to the other! ⚖️"
-    else: # rates
+    elif st.session_state.problem_type == 'rates':
         current_rule = "Unit Rate: Always divide to find the cost or amount for ONE unit! 💲/1"
+    elif st.session_state.problem_type == 'percentages':
+        current_rule = "Percentage: Part/Whole × 100% = Percentage! 🧩/🧩🧩🧩 × 100% = 25%"
+    else: # geometry
+        current_rule = "Geometry: Know your formulas! Area of rectangle = Length × Width 📏"
         
     st.info(f"🧠 **Today's Focus:** {current_rule}", icon="⭐")
 
@@ -768,7 +1143,7 @@ if st.session_state.current_problem is None:
 if st.button("🔄 New Problem", type="primary", use_container_width=True):
     # For mixed practice, randomize the type on new problem button click
     if st.session_state.problem_choice == "Mixed Practice":
-        st.session_state.problem_type = random.choice(['simplify', 'equations', 'rates'])
+        st.session_state.problem_type = random.choice(['simplify', 'equations', 'rates', 'percentages', 'geometry'])
         
     st.session_state.current_problem = None # Triggers the logic above to generate
     st.rerun()
