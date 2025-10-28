@@ -198,8 +198,20 @@ def gen_distribute_negative():
     
     expr = f"-{a}({b}x - {c})"
     answer = format_answer_string(x_coef, constant)
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    steps = [
+        f"🎯 **Watch out for the negative sign!** The minus applies to everything.",
+        f"**Step 1: Distribute -{a}:** -{a} × {b}x = {-a * b}x, and -{a} × (-{c}) = +{a * c}",
+        f"**Step 2: Final answer:** **{answer}**",
+        f"✨ **Remember:** A minus outside flips ALL the signs inside!"
+    ]
+    
+    hints = [
+        f"💡 **Distribute the minus!** The -{a} multiplies both terms: {b}x and -{c}.",
+        f"💡 **Change the signs!** -{a} × (-{c}) = +{a * c} because two negatives make a positive!",
+        f"💡 **Final result:** {-a * b}x {('+' if constant >= 0 else '-')} {abs(constant)}"
+    ]
+    
     return expr, answer, steps, hints
 
 def gen_multi_distribute():
@@ -216,8 +228,22 @@ def gen_multi_distribute():
     
     expr = f"{a}({b}x + {c}) - {d}({e}x + {f})"
     answer = format_answer_string(x_coef, constant)
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    steps = [
+        f"🎯 **Two groups to distribute!** Handle each set of parentheses separately.",
+        f"**Step 1: Distribute {a}:** {a}({b}x + {c}) = {a * b}x + {a * c}",
+        f"**Step 2: Distribute -{d}:** -{d}({e}x + {f}) = -{d * e}x - {d * f}",
+        f"**Step 3: Combine like terms:** x terms: {a * b}x - {d * e}x = {x_coef}x",
+        f"**Step 4: Combine constants:** {a * c} - {d * f} = {constant}",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **Distribute both groups!** First multiply {a} with everything in the first parentheses, then -{d} with everything in the second.",
+        f"💡 **Watch the minus sign!** When distributing -{d}, it becomes -{d * e}x - {d * f}.",
+        f"💡 **Combine like terms:** Add up all your x terms, then add up all the numbers."
+    ]
+    
     return expr, answer, steps, hints
 
 def gen_fraction_simplify():
@@ -241,8 +267,22 @@ def gen_fraction_simplify():
     else:
         answer = f"{result}x"
     
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    steps = [
+        f"🎯 **Different denominators!** Need common denominator to add fractions.",
+        f"**Step 1: Find common denominator:** {b} × {d} = {denominator}",
+        f"**Step 2: Convert first fraction:** {a}/{b}x = ({a} × {d})/{denominator}x = {a * d}/{denominator}x",
+        f"**Step 3: Convert second fraction:** {c}/{d}x = ({c} × {b})/{denominator}x = {c * b}/{denominator}x",
+        f"**Step 4: Add numerators:** {a * d}/{denominator}x + {c * b}/{denominator}x = {numerator}/{denominator}x",
+        f"**Step 5: Simplify:** {numerator}/{denominator} = {result}",
+        f"✨ **Final Answer: {answer}**"
+    ]
+    
+    hints = [
+        f"💡 **Get common denominators first!** Multiply {b} × {d} = {denominator}",
+        f"💡 **Convert both fractions:** {a}/{b} becomes {a * d}/{denominator} and {c}/{d} becomes {c * b}/{denominator}",
+        f"💡 **Add the numerators:** {a * d} + {c * b} = {numerator}"
+    ]
+    
     return expr, answer.replace(" ", ""), steps, hints
 
 def gen_fraction_simplify_mixed():
@@ -283,8 +323,21 @@ def gen_linear_eq():
     x_val = Fraction(c - b, a)
     equation = f"{a}x + {b} = {c}".replace("+ -", "- ")
     answer = str(x_val)
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    steps = [
+        f"🎯 **Isolate x!** Get x by itself on one side.",
+        f"**Step 1: Subtract {b} from both sides:** {equation} becomes {a}x = {c - b}",
+        f"**Step 2: Divide both sides by {a}:** x = {c - b}/{a}",
+        f"**Step 3: Simplify:** x = **{x_val}**",
+        f"✨ **Remember:** Whatever you do to one side, do the same to the other! ⚖️"
+    ]
+    
+    hints = [
+        f"💡 **The Golden Rule:** What you do to one side, you MUST do to the other! First, get rid of {b} by subtracting it.",
+        f"💡 **Next step:** Now divide by {a} to isolate x. The equation is {a}x = {c - b}",
+        f"💡 **Final step:** x = {c - b} ÷ {a} = {x_val}"
+    ]
+    
     return equation, answer, steps, hints
 
 def gen_fraction_eq():
@@ -297,8 +350,21 @@ def gen_fraction_eq():
     x_val = k * a
     equation = f"x/{a} + {b} = {c}".replace("+ -", "- ")
     answer = str(x_val)
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    steps = [
+        f"🎯 **Get rid of the fraction!** Isolate x by working backwards.",
+        f"**Step 1: Subtract {b} from both sides:** x/{a} = {c - b}",
+        f"**Step 2: Multiply both sides by {a}:** x = {c - b} × {a}",
+        f"**Step 3: Calculate:** x = **{x_val}**",
+        f"✨ **Remember:** To undo division by {a}, multiply by {a}!"
+    ]
+    
+    hints = [
+        f"💡 **First step:** Subtract {b} from both sides to get x/{a} by itself.",
+        f"💡 **Now multiply:** To get x alone, multiply both sides by {a}. This gives x = {c - b} × {a}",
+        f"💡 **Final answer:** x = {x_val}"
+    ]
+    
     return equation, answer, steps, hints
 
 def gen_distribute_eq():
@@ -318,8 +384,29 @@ def gen_distribute_eq():
     x_val = Fraction(f - const, x_coef)
     equation = f"{a}({b}x + {c}) + {d}x + {e} = {f}"
     answer = str(x_val)
-    steps = ['s1', 's2', 's3']
-    hints = ['h1', 'h2', 'h3']
+    
+    # Calculate intermediate values for steps
+    distributed_x = a * b
+    distributed_const = a * c
+    combined_x = distributed_x + d
+    combined_const = distributed_const + e
+    
+    steps = [
+        f"🎯 **Simplify first, then solve!** Distribute and combine like terms.",
+        f"**Step 1: Distribute {a}:** {a}({b}x + {c}) = {distributed_x}x + {distributed_const}",
+        f"**Step 2: Combine like terms:** {distributed_x}x + {d}x = {combined_x}x, and {distributed_const} + {e} = {combined_const}",
+        f"**Step 3: Simplified equation:** {combined_x}x + {combined_const} = {f}",
+        f"**Step 4: Subtract {combined_const} from both sides:** {combined_x}x = {f - combined_const}",
+        f"**Step 5: Divide by {combined_x}:** x = {f - combined_const}/{combined_x} = **{x_val}**",
+        f"✨ **You did it!** Step by step gets you there! 🎉"
+    ]
+    
+    hints = [
+        f"💡 **Start by distributing!** Multiply {a} with everything inside the parentheses: {a} × {b}x and {a} × {c}",
+        f"💡 **Combine like terms!** Add up all the x terms and all the plain numbers separately.",
+        f"💡 **Now solve!** After simplifying, use the Golden Rule: subtract, then divide to find x = {x_val}"
+    ]
+    
     return equation, answer, steps, hints
 
 
