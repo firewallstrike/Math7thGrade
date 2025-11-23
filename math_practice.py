@@ -121,7 +121,7 @@ def init_session_state():
     if 'problem_label' not in st.session_state:
         st.session_state.problem_label = ""
     if 'problem_choice' not in st.session_state:
-        st.session_state.problem_choice = 'Simplifying Expressions'
+        st.session_state.problem_choice = '📐 Simplifying Expressions'
 
 init_session_state()
 
@@ -612,13 +612,180 @@ def gen_comparing_rates():
     return problem, answer, steps, hints, "Compare the Rates:"
 
 
+def gen_ratio_fractions():
+    """Generate ratio scaling problems using fractions."""
+
+    scenarios = [
+        ("cups of flour", "cups of sugar", "baking cookies"),
+        ("red paint", "blue paint", "mixing purple paint"),
+        ("boys", "girls", "the classroom"),
+        ("teachers", "students", "the school")
+    ]
+
+    unit1, unit2, context = random.choice(scenarios)
+
+    # Start with a simple ratio
+    a = random.randint(2, 6)
+    b = random.randint(2, 6)
+
+    # Use a fraction as multiplier (like 1/2, 1/3, 2/3, 3/2)
+    numerators = [1, 1, 2, 3, 1]
+    denominators = [2, 3, 3, 2, 4]
+    idx = random.randint(0, len(numerators) - 1)
+    mult_num = numerators[idx]
+    mult_den = denominators[idx]
+
+    # Calculate the new ratio
+    new_a = Fraction(a * mult_num, mult_den)
+    new_b = Fraction(b * mult_num, mult_den)
+
+    problem = f"A recipe uses **{a} {unit1}** for every **{b} {unit2}**. If you want to make **{mult_num}/{mult_den}** of the recipe, how many {unit1} do you need?"
+
+    answer = str(new_a)
+
+    steps = [
+        f"🎯 **Scaling with fractions:** Multiply the original amount by the scale factor.",
+        f"**Step 1: Identify the scale factor:** {mult_num}/{mult_den} of the recipe",
+        f"**Step 2: Multiply the {unit1}:** {a} × {mult_num}/{mult_den} = {a * mult_num}/{mult_den}",
+        f"**Step 3: Simplify if needed:** {a * mult_num}/{mult_den} = **{new_a}**",
+        f"✨ **Final Answer:** {new_a} {unit1}"
+    ]
+
+    hints = [
+        f"💡 **Think of it as finding a fraction of the amount!** What is {mult_num}/{mult_den} of {a}?",
+        f"💡 **Multiply!** {a} × {mult_num}/{mult_den} = ({a} × {mult_num}) ÷ {mult_den}",
+        f"💡 **Calculate:** ({a} × {mult_num}) ÷ {mult_den} = {a * mult_num} ÷ {mult_den} = {new_a}"
+    ]
+
+    return problem, answer, steps, hints, "Scale the Ratio:"
+
+
+def gen_solving_proportions():
+    """Generate proportion-solving problems using cross-multiplication."""
+
+    scenarios = [
+        ("miles", "hours", "driving"),
+        ("pages", "minutes", "reading"),
+        ("dollars", "items", "shopping"),
+        ("meters", "seconds", "running")
+    ]
+
+    unit1, unit2, context = random.choice(scenarios)
+
+    # Create a proportion: a/b = c/x
+    a = random.randint(3, 12)
+    b = random.randint(2, 10)
+    c = random.randint(4, 15)
+
+    # Calculate x using cross-multiplication
+    x = Fraction(b * c, a)
+
+    problem = f"If **{a} {unit1}** takes **{b} {unit2}**, how many {unit2} will **{c} {unit1}** take? (Solve using a proportion)"
+
+    answer = str(x)
+
+    steps = [
+        f"🎯 **Set up the proportion:** Two equal ratios!",
+        f"**Step 1: Write the proportion:** {a}/{b} = {c}/x",
+        f"**Step 2: Cross-multiply:** {a} × x = {b} × {c}",
+        f"**Step 3: Calculate the right side:** {b} × {c} = {b * c}",
+        f"**Step 4: Solve for x:** x = {b * c}/{a} = **{x}**",
+        f"✨ **Final Answer:** {x} {unit2}"
+    ]
+
+    hints = [
+        f"💡 **Set up your proportion!** {a} {unit1} / {b} {unit2} = {c} {unit1} / ? {unit2}",
+        f"💡 **Use cross-multiplication!** Multiply diagonally: {a} × ? = {b} × {c}",
+        f"💡 **Solve it!** ? = ({b} × {c}) ÷ {a} = {b * c} ÷ {a} = {x}"
+    ]
+
+    return problem, answer, steps, hints, "Solve the Proportion:"
+
+
+def gen_constant_proportionality():
+    """Generate problems about constant of proportionality (k in y = kx)."""
+
+    scenarios = [
+        ("cost (y)", "number of items (x)", "dollars", "items", "buying apples"),
+        ("distance (y)", "time (x)", "miles", "hours", "driving at constant speed"),
+        ("earnings (y)", "hours worked (x)", "dollars", "hours", "working a job"),
+        ("pages read (y)", "days (x)", "pages", "days", "reading a book")
+    ]
+
+    y_label, x_label, y_unit, x_unit, context = random.choice(scenarios)
+
+    # Create a simple proportional relationship y = kx
+    k = random.randint(3, 15)
+    x_val = random.randint(2, 10)
+    y_val = k * x_val
+
+    problem = f"When {context}, **{y_label}** is proportional to **{x_label}**. If **y = {y_val}** when **x = {x_val}**, what is the **constant of proportionality (k)**?"
+
+    answer = str(k)
+
+    steps = [
+        f"🎯 **Find k in y = kx:** The constant tells you the rate!",
+        f"**Step 1: Use the formula:** y = kx, so k = y/x",
+        f"**Step 2: Substitute the values:** k = {y_val}/{x_val}",
+        f"**Step 3: Divide:** k = **{k}**",
+        f"**Step 4: Interpret:** This means {k} {y_unit} per {x_unit}!",
+        f"✨ **Final Answer:** k = {k}"
+    ]
+
+    hints = [
+        f"💡 **Use the formula!** If y = kx, then k = y ÷ x",
+        f"💡 **Plug in the numbers:** k = {y_val} ÷ {x_val}",
+        f"💡 **The constant is the unit rate!** k = {k} {y_unit} per {x_unit}"
+    ]
+
+    return problem, answer, steps, hints, "Find k:"
+
+
+def gen_proportional_graph():
+    """Generate problems about proportional relationships shown in coordinate points."""
+
+    # Create a proportional relationship y = kx
+    k = random.randint(2, 8)
+
+    # Generate some coordinate points
+    x_values = [1, 2, 3, 4]
+    points = [(x, k * x) for x in x_values]
+
+    # Format points for display
+    points_str = ", ".join([f"({x}, {y})" for x, y in points])
+
+    problem = f"A graph shows these points on a line: **{points_str}**. This represents a proportional relationship y = kx. What is the **constant of proportionality (k)**?"
+
+    answer = str(k)
+
+    steps = [
+        f"🎯 **Proportional Graph:** In a proportional relationship, y/x is always the same (that's k!)",
+        f"**Step 1: Pick any point and use k = y/x.** Let's use ({points[0][0]}, {points[0][1]})",
+        f"**Step 2: Calculate k:** k = {points[0][1]}/{points[0][0]} = **{k}**",
+        f"**Step 3: Verify with another point!** ({points[1][0]}, {points[1][1]}): k = {points[1][1]}/{points[1][0]} = {k} ✓",
+        f"✨ **Final Answer:** k = {k}"
+    ]
+
+    hints = [
+        f"💡 **In a proportional relationship, y = kx!** So k = y ÷ x",
+        f"💡 **Pick ANY point and divide y by x!** Try ({points[0][0]}, {points[0][1]}): k = {points[0][1]} ÷ {points[0][0]}",
+        f"💡 **The answer is k = {k}!** This means y is always {k} times x."
+    ]
+
+    return problem, answer, steps, hints, "Find k from Graph:"
+
+
 def gen_unit_rate():
     """Pick a random unit rate problem type."""
     generators = [
         gen_unit_rate_basic,
         gen_unit_rate_reverse,
         gen_equivalent_ratios,
-        gen_comparing_rates
+        gen_comparing_rates,
+        gen_ratio_fractions,
+        gen_solving_proportions,
+        gen_constant_proportionality,
+        gen_proportional_graph
     ]
     return random.choice(generators)()
 
@@ -925,13 +1092,185 @@ def gen_find_percentage():
     return problem, answer, steps, hints, "Find the Percentage:"
 
 
+def gen_percent_decimal_fraction():
+    """Generate conversion problems between percent, decimal, and fraction."""
+
+    conversion_type = random.choice(['percent_to_decimal', 'decimal_to_percent', 'percent_to_fraction', 'fraction_to_percent'])
+
+    if conversion_type == 'percent_to_decimal':
+        percentage = random.choice([25, 50, 75, 20, 40, 60, 80, 10, 30, 70, 90])
+        decimal = percentage / 100
+
+        problem = f"Convert **{percentage}%** to a decimal."
+        answer = str(decimal)
+
+        steps = [
+            f"🎯 **Percent to Decimal:** Divide by 100 (or move decimal point 2 places left).",
+            f"**Step 1: Divide by 100:** {percentage}% = {percentage} ÷ 100",
+            f"**Step 2: Calculate:** {percentage} ÷ 100 = **{decimal}**",
+            f"✨ **Final Answer:** {decimal}"
+        ]
+
+        hints = [
+            f"💡 **Think: Percent means 'per 100'!** So {percentage}% = {percentage}/100",
+            f"💡 **Shortcut:** Move the decimal point 2 places to the LEFT!",
+            f"💡 **Answer:** {percentage}% = {decimal}"
+        ]
+
+    elif conversion_type == 'decimal_to_percent':
+        decimals = [0.25, 0.5, 0.75, 0.2, 0.4, 0.6, 0.8, 0.1, 0.3, 0.7, 0.9]
+        decimal = random.choice(decimals)
+        percentage = int(decimal * 100)
+
+        problem = f"Convert **{decimal}** to a percent."
+        answer = f"{percentage}"
+
+        steps = [
+            f"🎯 **Decimal to Percent:** Multiply by 100 (or move decimal point 2 places right).",
+            f"**Step 1: Multiply by 100:** {decimal} × 100",
+            f"**Step 2: Calculate:** {decimal} × 100 = {percentage}",
+            f"**Step 3: Add percent sign:** **{percentage}%**",
+            f"✨ **Final Answer:** {percentage}%"
+        ]
+
+        hints = [
+            f"💡 **Move the decimal point 2 places to the RIGHT!** Then add %",
+            f"💡 **Or multiply by 100:** {decimal} × 100 = {percentage}",
+            f"💡 **Answer:** {decimal} = {percentage}%"
+        ]
+
+    elif conversion_type == 'percent_to_fraction':
+        percentages = [25, 50, 75, 20, 40, 60, 80, 10, 30, 70, 90]
+        percentage = random.choice(percentages)
+        fraction = Fraction(percentage, 100)
+
+        problem = f"Convert **{percentage}%** to a simplified fraction."
+        answer = str(fraction)
+
+        steps = [
+            f"🎯 **Percent to Fraction:** Write as a fraction over 100, then simplify.",
+            f"**Step 1: Write as fraction:** {percentage}% = {percentage}/100",
+            f"**Step 2: Simplify:** {percentage}/100 = **{fraction}**",
+            f"✨ **Final Answer:** {fraction}"
+        ]
+
+        hints = [
+            f"💡 **Percent means 'out of 100'!** So {percentage}% = {percentage}/100",
+            f"💡 **Now simplify the fraction!** Find the GCD and reduce.",
+            f"💡 **Answer:** {percentage}/100 = {fraction}"
+        ]
+
+    else:  # fraction_to_percent
+        fractions = [
+            (Fraction(1, 4), "1/4"),
+            (Fraction(1, 2), "1/2"),
+            (Fraction(3, 4), "3/4"),
+            (Fraction(1, 5), "1/5"),
+            (Fraction(2, 5), "2/5"),
+            (Fraction(3, 5), "3/5"),
+            (Fraction(4, 5), "4/5")
+        ]
+        fraction, fraction_str = random.choice(fractions)
+        percentage = int(fraction * 100)
+
+        problem = f"Convert **{fraction_str}** to a percent."
+        answer = str(percentage)
+
+        steps = [
+            f"🎯 **Fraction to Percent:** Convert to decimal, then multiply by 100.",
+            f"**Step 1: Divide:** {fraction_str} = {fraction.numerator} ÷ {fraction.denominator} = {float(fraction)}",
+            f"**Step 2: Multiply by 100:** {float(fraction)} × 100 = {percentage}",
+            f"**Step 3: Add percent sign:** **{percentage}%**",
+            f"✨ **Final Answer:** {percentage}%"
+        ]
+
+        hints = [
+            f"💡 **First convert to decimal!** {fraction_str} = {fraction.numerator} ÷ {fraction.denominator}",
+            f"💡 **Then multiply by 100:** {float(fraction)} × 100 = {percentage}",
+            f"💡 **Answer:** {fraction_str} = {percentage}%"
+        ]
+
+    return problem, answer, steps, hints, "Convert:"
+
+
+def gen_percent_as_proportion():
+    """Generate problems expressing percent problems as proportions."""
+
+    whole = random.randint(20, 100)
+    percentage = random.choice([10, 20, 25, 30, 40, 50, 60, 75, 80])
+    part = int(whole * percentage / 100)
+
+    problem = f"**{part}** is **{percentage}%** of what number? (Set up and solve as a proportion: part/whole = percent/100)"
+
+    answer = str(whole)
+
+    steps = [
+        f"🎯 **Percent as Proportion:** part/whole = percent/100",
+        f"**Step 1: Set up proportion:** {part}/x = {percentage}/100",
+        f"**Step 2: Cross-multiply:** {percentage} × x = {part} × 100",
+        f"**Step 3: Calculate right side:** {part} × 100 = {part * 100}",
+        f"**Step 4: Solve for x:** x = {part * 100}/{percentage} = **{whole}**",
+        f"✨ **Final Answer:** {whole}"
+    ]
+
+    hints = [
+        f"💡 **Use the proportion formula!** part/whole = percent/100",
+        f"💡 **We know the part ({part}) and percent ({percentage}), find the whole!**",
+        f"💡 **Cross-multiply:** {percentage} × x = {part} × 100, so x = {part * 100} ÷ {percentage} = {whole}"
+    ]
+
+    return problem, answer, steps, hints, "Solve the Proportion:"
+
+
+def gen_percent_of_change():
+    """Generate percent of change problems (general formula)."""
+
+    change_type = random.choice(['increase', 'decrease'])
+
+    if change_type == 'increase':
+        original = random.randint(40, 200)
+        change = random.randint(10, 50)
+        new_value = original + change
+
+        problem = f"A value increases from **{original}** to **{new_value}**. What is the **percent of change**?"
+
+    else:  # decrease
+        original = random.randint(60, 200)
+        change = random.randint(10, 50)
+        new_value = original - change
+
+        problem = f"A value decreases from **{original}** to **{new_value}**. What is the **percent of change**?"
+
+    percent_change = round((change / original) * 100, 1)
+    answer = str(percent_change) if percent_change % 1 != 0 else str(int(percent_change))
+
+    steps = [
+        f"🎯 **Percent of Change Formula:** (Change ÷ Original) × 100%",
+        f"**Step 1: Find the amount of change:** |{new_value} - {original}| = {change}",
+        f"**Step 2: Divide by original:** {change} ÷ {original} = {change/original:.4f}",
+        f"**Step 3: Convert to percent:** {change/original:.4f} × 100% = **{percent_change}%**",
+        f"✨ **Final Answer:** {percent_change}% {change_type}"
+    ]
+
+    hints = [
+        f"💡 **First find the change!** New value - Original value = {new_value} - {original} = {change}",
+        f"💡 **Use the formula:** (Change ÷ Original) × 100%",
+        f"💡 **Calculate:** ({change} ÷ {original}) × 100% = {percent_change}%"
+    ]
+
+    return problem, answer, steps, hints, "Find Percent of Change:"
+
+
 def gen_percentage():
     """Pick a random percentage problem type."""
     generators = [
         gen_basic_percentage,
         gen_percentage_increase,
         gen_percentage_decrease,
-        gen_find_percentage
+        gen_find_percentage,
+        gen_percent_decimal_fraction,
+        gen_percent_as_proportion,
+        gen_percent_of_change
     ]
     return random.choice(generators)()
 
@@ -973,16 +1312,57 @@ def get_generator_sets():
 
 def generate_new_problem(problem_type):
     """Generate a new problem based on type."""
-    generator_sets = get_generator_sets() 
-    
+    generator_sets = get_generator_sets()
+
+    # ALGEBRAIC EXPRESSIONS
     if problem_type == 'simplify':
         generators = generator_sets['simplify']
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Simplify:"
+
+    # EQUATIONS
+    elif problem_type == 'equations':
+        generators = generator_sets['equations']
+        expr, answer, steps, hints = random.choice(generators)()
+        return expr, answer, steps, hints, "Solve for x:"
+
+    # SPECIFIC RATIO/RATE PROBLEM TYPES
+    elif problem_type == 'unit_rate_basic':
+        return gen_unit_rate_basic()
+    elif problem_type == 'equivalent_ratios':
+        return gen_equivalent_ratios()
+    elif problem_type == 'proportions':
+        return gen_solving_proportions()
+    elif problem_type == 'constant_k':
+        return gen_constant_proportionality()
+    elif problem_type == 'prop_graphs':
+        return gen_proportional_graph()
+    elif problem_type == 'ratio_fractions':
+        return gen_ratio_fractions()
+
+    # SPECIFIC PERCENTAGE PROBLEM TYPES
+    elif problem_type == 'basic_percent':
+        return gen_basic_percentage()
+    elif problem_type == 'percent_change_basic':
+        # Random choice between increase and decrease
+        return random.choice([gen_percentage_increase, gen_percentage_decrease])()
+    elif problem_type == 'percent_conversions':
+        return gen_percent_decimal_fraction()
+    elif problem_type == 'percent_proportion':
+        return gen_percent_as_proportion()
+    elif problem_type == 'percent_of_change':
+        return gen_percent_of_change()
+
+    # GEOMETRY
+    elif problem_type == 'geometry':
+        generators = generator_sets['geometry']
+        result = random.choice(generators)()
+        return result
+
+    # LEGACY CATCH-ALL TYPES (for backward compatibility)
     elif problem_type == 'rates':
         generators = generator_sets['rates']
         result = random.choice(generators)()
-        # gen_unit_rate returns 5 values including label
         if len(result) == 5:
             return result
         else:
@@ -992,11 +1372,9 @@ def generate_new_problem(problem_type):
         generators = generator_sets['percentages']
         result = random.choice(generators)()
         return result
-    elif problem_type == 'geometry':
-        generators = generator_sets['geometry']
-        result = random.choice(generators)()
-        return result
-    else:  # equations
+
+    else:
+        # Default fallback
         generators = generator_sets['equations']
         expr, answer, steps, hints = random.choice(generators)()
         return expr, answer, steps, hints, "Solve for x:"
@@ -1076,28 +1454,62 @@ with st.sidebar:
     st.header("⚙️ Settings")
     
     previous_type = st.session_state.problem_type
-    
-    # UPDATED PROBLEM CHOICE FOR ALL CATEGORIES
+
+    # EXPANDED PROBLEM CHOICE WITH ALL SPECIFIC CONCEPTS
     problem_choice = st.radio(
         "What do you want to practice?",
-        ["Simplifying Expressions", "Solving Equations", "Unit Rates", "Percentages", "Geometry", "Mixed Practice"],
+        [
+            "📐 Simplifying Expressions",
+            "🎯 Solving Equations",
+            "➗ Unit Rates (Basic)",
+            "🔢 Equivalent Ratios",
+            "📊 Proportions & Cross-Multiplication",
+            "⚡ Constant of Proportionality",
+            "📈 Proportional Graphs",
+            "🍰 Ratio Scaling with Fractions",
+            "💯 Basic Percentages",
+            "📈 Percent Increase/Decrease",
+            "🔄 Percent-Decimal-Fraction Conversions",
+            "⚖️ Percent as Proportion",
+            "📉 Percent of Change",
+            "📏 Geometry (Area & Perimeter)",
+            "🎲 Mixed Practice (All Topics)"
+        ],
         key="problem_choice"
     )
-    
+
     # Set problem type based on selection
-    if problem_choice == "Simplifying Expressions":
+    if problem_choice == "📐 Simplifying Expressions":
         st.session_state.problem_type = 'simplify'
-    elif problem_choice == "Solving Equations":
+    elif problem_choice == "🎯 Solving Equations":
         st.session_state.problem_type = 'equations'
-    elif problem_choice == "Unit Rates":
-        st.session_state.problem_type = 'rates'
-    elif problem_choice == "Percentages":
-        st.session_state.problem_type = 'percentages'
-    elif problem_choice == "Geometry":
+    elif problem_choice == "➗ Unit Rates (Basic)":
+        st.session_state.problem_type = 'unit_rate_basic'
+    elif problem_choice == "🔢 Equivalent Ratios":
+        st.session_state.problem_type = 'equivalent_ratios'
+    elif problem_choice == "📊 Proportions & Cross-Multiplication":
+        st.session_state.problem_type = 'proportions'
+    elif problem_choice == "⚡ Constant of Proportionality":
+        st.session_state.problem_type = 'constant_k'
+    elif problem_choice == "📈 Proportional Graphs":
+        st.session_state.problem_type = 'prop_graphs'
+    elif problem_choice == "🍰 Ratio Scaling with Fractions":
+        st.session_state.problem_type = 'ratio_fractions'
+    elif problem_choice == "💯 Basic Percentages":
+        st.session_state.problem_type = 'basic_percent'
+    elif problem_choice == "📈 Percent Increase/Decrease":
+        st.session_state.problem_type = 'percent_change_basic'
+    elif problem_choice == "🔄 Percent-Decimal-Fraction Conversions":
+        st.session_state.problem_type = 'percent_conversions'
+    elif problem_choice == "⚖️ Percent as Proportion":
+        st.session_state.problem_type = 'percent_proportion'
+    elif problem_choice == "📉 Percent of Change":
+        st.session_state.problem_type = 'percent_of_change'
+    elif problem_choice == "📏 Geometry (Area & Perimeter)":
         st.session_state.problem_type = 'geometry'
-    
+
     # If problem type changed, reset problem
-    if problem_choice != "Mixed Practice" and previous_type != st.session_state.problem_type:
+    if problem_choice != "🎲 Mixed Practice (All Topics)" and previous_type != st.session_state.problem_type:
         st.session_state.current_problem = None
         st.rerun()
     
@@ -1109,13 +1521,31 @@ with st.sidebar:
         current_rule = "Match up the X's with the X's, and the numbers with the numbers! 🍎=🍎"
     elif st.session_state.problem_type == 'equations':
         current_rule = "Golden Rule: What you do to one side, you MUST do to the other! ⚖️"
-    elif st.session_state.problem_type == 'rates':
+    elif st.session_state.problem_type in ['unit_rate_basic', 'rates']:
         current_rule = "Unit Rate: Always divide to find the cost or amount for ONE unit! 💲/1"
-    elif st.session_state.problem_type == 'percentages':
+    elif st.session_state.problem_type == 'equivalent_ratios':
+        current_rule = "Equivalent Ratios: Find the multiplier! If 3 becomes 9 (×3), then 4 becomes 12 (×3)! 🔢"
+    elif st.session_state.problem_type == 'proportions':
+        current_rule = "Cross-Multiply: a/b = c/d means a×d = b×c! Make an X! ✖️"
+    elif st.session_state.problem_type in ['constant_k', 'prop_graphs']:
+        current_rule = "Proportional Relationships: k = y/x is always the same! Find the pattern! 📊"
+    elif st.session_state.problem_type == 'ratio_fractions':
+        current_rule = "Scaling Ratios: Multiply by the fraction! 1/2 of 6 = 6 × 1/2 = 3! 🍰"
+    elif st.session_state.problem_type in ['basic_percent', 'percentages']:
         current_rule = "Percentage: Part/Whole × 100% = Percentage! 🧩/🧩🧩🧩 × 100% = 25%"
-    else: # geometry
+    elif st.session_state.problem_type == 'percent_change_basic':
+        current_rule = "Percent Change: Find the change amount, then divide by original! 📈📉"
+    elif st.session_state.problem_type == 'percent_conversions':
+        current_rule = "Converting: Percent ↔ Decimal ↔ Fraction. Move decimal 2 places! 🔄"
+    elif st.session_state.problem_type == 'percent_proportion':
+        current_rule = "Percent Proportion: part/whole = percent/100. Cross-multiply to solve! ⚖️"
+    elif st.session_state.problem_type == 'percent_of_change':
+        current_rule = "Percent of Change: (Change ÷ Original) × 100% 📊"
+    elif st.session_state.problem_type == 'geometry':
         current_rule = "Geometry: Know your formulas! Area of rectangle = Length × Width 📏"
-        
+    else:
+        current_rule = "Take your time and break it into steps! You've got this! 💪"
+
     st.info(f"🧠 **Today's Focus:** {current_rule}", icon="⭐")
 
     st.markdown("""
@@ -1130,9 +1560,15 @@ with st.sidebar:
 # Logic to generate a new problem if one isn't loaded or if 'New Problem' is clicked
 if st.session_state.current_problem is None:
     # Handle mixed practice randomization on first load or manual reload
-    if st.session_state.problem_choice == "Mixed Practice":
-        st.session_state.problem_type = random.choice(['simplify', 'equations', 'rates'])
-    
+    if st.session_state.problem_choice == "🎲 Mixed Practice (All Topics)":
+        all_types = [
+            'simplify', 'equations', 'unit_rate_basic', 'equivalent_ratios',
+            'proportions', 'constant_k', 'prop_graphs', 'ratio_fractions',
+            'basic_percent', 'percent_change_basic', 'percent_conversions',
+            'percent_proportion', 'percent_of_change', 'geometry'
+        ]
+        st.session_state.problem_type = random.choice(all_types)
+
     st.session_state.current_problem, st.session_state.current_answer, st.session_state.current_steps, st.session_state.hints, st.session_state.problem_label = generate_new_problem(st.session_state.problem_type)
     st.session_state.show_hint = False
     st.session_state.show_steps = False
@@ -1142,9 +1578,15 @@ if st.session_state.current_problem is None:
 
 if st.button("🔄 New Problem", type="primary", use_container_width=True):
     # For mixed practice, randomize the type on new problem button click
-    if st.session_state.problem_choice == "Mixed Practice":
-        st.session_state.problem_type = random.choice(['simplify', 'equations', 'rates', 'percentages', 'geometry'])
-        
+    if st.session_state.problem_choice == "🎲 Mixed Practice (All Topics)":
+        all_types = [
+            'simplify', 'equations', 'unit_rate_basic', 'equivalent_ratios',
+            'proportions', 'constant_k', 'prop_graphs', 'ratio_fractions',
+            'basic_percent', 'percent_change_basic', 'percent_conversions',
+            'percent_proportion', 'percent_of_change', 'geometry'
+        ]
+        st.session_state.problem_type = random.choice(all_types)
+
     st.session_state.current_problem = None # Triggers the logic above to generate
     st.rerun()
 
